@@ -9,5 +9,6 @@ https://laravel.com/docs/6.x
 * run `php artisan serve` and access localhost:8000
 * run `cp .env.example .env`
 * fill your .env file with information about your mysql database (your user must be secured with a password) 
+* run `php artisan migrate`
 
 ### To run laravel commands
