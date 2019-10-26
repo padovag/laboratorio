@@ -1,13 +1,13 @@
 # Laboratório
-### Projeto de TCC do curso Análise e Desenvolvimento de Sistemas
+###  TCC do curso Análise e Desenvolvimento de Sistemas
 Gitlab classroom - api de acesso ao gitlab
 
-### To set it up
-Setup using laradock (https://laradock.io/)
-* run `docker-compose up -d nginx mysql phpmyadmin workspace`
+## To set it up
+### To install Laravel, if it's the first time you're using it
+https://laravel.com/docs/6.x
+* run `composer global require laravel/installer`
+* run `php artisan serve` and access localhost:8000
 * run `cp .env.example .env`
-* replace values in `DB_USER` and `DB_PASSWORD` for the credentials found on laradock/.env
-
+* fill your .env file with information about your mysql database (your user must be secured with a password) 
 
 ### To run laravel commands
-* run `docker-compose exec workspace bash` to enter the Workspace container to execute commands like (Artisan, Composer, PHPUnit, Gulp, …)
