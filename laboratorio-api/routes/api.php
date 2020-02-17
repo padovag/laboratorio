@@ -12,3 +12,4 @@
 */
 
 Route::post('/user', 'GitLabUserController@store');
+Route::post('/user/allow_gitlab', 'GitLabUserController@allow');
