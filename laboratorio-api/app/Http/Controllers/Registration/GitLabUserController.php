@@ -38,7 +38,7 @@ class GitLabUserController extends ApiController {
 
     public function allow(Request $request) {
         $validator = Validator::make($request->all(), [
-            'user' => 'required',
+            'user' => 'required|exists:gitlab_users',
             'gitlab_code' => 'required|unique:gitlab_users'
         ]);
 
@@ -51,6 +51,24 @@ class GitLabUserController extends ApiController {
         $user->save();
 
         return $this->sendSuccessResponse(['user' => $user->user, 'gitlab_code' => $user->gitlab_code]);
+    }
+
+    public function authenticate(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'user' => 'required|exists:gitlab_users',
+            'password' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        $user = GitLabUser::where('user', $request['user'])->first();
+        if($user->password != $request['password']) {
+            return $this->sendFailedResponse("Invalid password", $status = 400, ['user' => $user->user]);
+        }
+
+        return $this->sendSuccessResponse(['name' => $user->name, 'user' => $user->user, 'hasAuthorizedGitLab' => !empty($user->gitlab_code)]);
     }
 
     private function getGitLabUrl(string $redirect_url): string {
