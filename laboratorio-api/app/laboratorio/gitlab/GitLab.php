@@ -11,8 +11,8 @@ use GuzzleHttp\Exception\ClientException;
 class GitLab {
     private const GITLAB_URI = "https://gitlab.com/api/v4/";
 
-    public function createGroup(string $name, string $path, string $description) {
-        $query_parameters = ['name' => $name, 'path' => $path, 'description' => $description];
+    public function createGroup(string $name, string $description) {
+        $query_parameters = ['name' => $name, 'path' => $name . '-group', 'description' => $description];
         $response = $this->makeRequest($resource = 'groups', $query_parameters);
 
         return $response;

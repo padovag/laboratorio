@@ -14,3 +14,5 @@
 Route::post('/user', 'GitLabUserController@store');
 Route::post('/user/allow_gitlab', 'GitLabUserController@allow');
 Route::post('/user/auth', 'GitLabUserController@authenticate');
+
+Route::post('/classroom', 'ClassroomController@store');
