@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GitLabUser;
+use App\laboratorio\gitlab\GitLab;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -10,8 +11,9 @@ class GitLabUserController extends ApiController {
 
     public function store(Request $request) {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:gitlab_users',
+            'name' => 'required',
             'user' => 'required|unique:gitlab_users',
+            'password' => 'required',
             'redirect_url' => 'required',
         ]);
 
@@ -72,6 +74,7 @@ class GitLabUserController extends ApiController {
     }
 
     private function getGitLabUrl(string $redirect_url): string {
-        return "https://gitlab.com/oauth/authorize?client_id=11b725a12fba56f24b81dbebaa93781aeabe6042c1804cde36c5738a7ad30d6e&redirect_uri={$redirect_url}&response_type=code";
+        $client_id = GitLab::getClientId();
+        return "https://gitlab.com/oauth/authorize?client_id={$client_id}&redirect_uri={$redirect_url}&response_type=code";
     }
 }
