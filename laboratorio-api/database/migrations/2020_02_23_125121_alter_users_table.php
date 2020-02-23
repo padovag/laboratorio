@@ -14,7 +14,7 @@ class AlterUsersTable extends Migration
     public function up()
     {
         Schema::table('gitlab_users', function($table) {
-            $table->integer('grr');
+            $table->integer('registration_number');
         });
     }
 
@@ -26,7 +26,7 @@ class AlterUsersTable extends Migration
     public function down()
     {
         Schema::table('gitlab_users', function($table) {
-            $table->dropColumn('grr');
+            $table->dropColumn('registration_number');
         });
     }
 }
