@@ -25,6 +25,7 @@ class GitLabUserController extends ApiController {
         $user->name = $request['name'];
         $user->user = $request['user'];
         $user->password = $request['password'];
+        $user->grr = $request['grr'];
 
         $user->save();
 
@@ -32,6 +33,7 @@ class GitLabUserController extends ApiController {
             'name' => $user->name,
             'user' => $user->user,
             'password' => $user->password,
+            'grr' => $user->grr,
             'gitlab_authorization_redirect_link' => $this->getGitLabUrl($request['redirect_url'])
         ];
 
