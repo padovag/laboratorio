@@ -21,7 +21,7 @@ class ClassroomController extends ApiController {
             $classroom->description = $request['description'];
             $classroom->create();
 
-            return $this->sendSuccessResponse((array)$classroom);
+            return $this->sendSuccessResponse((array) $classroom);
         } catch(ClassroomException $exception) {
             return $this->sendFailedResponse($exception->getMessage(), 400, (array) $classroom);
         }

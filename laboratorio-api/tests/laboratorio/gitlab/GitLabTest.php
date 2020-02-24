@@ -18,4 +18,18 @@ class GitLabTest extends TestCase {
         $this->assertEquals($name, $response->data->name);
         $this->assertEquals($description, $response->data->description);
     }
+
+    public function testAddMembersToGroup() {
+        $user_id = 1215858;
+        $access_level = 30; //developer access
+        $group_id = 7244702;
+
+        $gitlab_client = new GitLabForTests();
+        $gitlab_client->mockSuccessResponse((object) ['id' => $user_id, 'name' => 'Teste da Silva']);
+        $response = $gitlab_client->addMemberToGroup($user_id, $group_id, $access_level);
+
+        $this->assertInstanceOf(SuccessResponse::class, $response);
+        $this->assertEquals($user_id, $response->data->id);
+        $this->assertEquals('Teste da Silva', $response->data->name);
+    }
 }
