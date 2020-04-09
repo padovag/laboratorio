@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterUsersTable extends Migration
+class DeleteUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,7 @@ class AlterUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('gitlab_users', function($table) {
-            $table->integer('registration_number');
-        });
+        Schema::dropIfExists("users");
     }
 
     /**
@@ -25,5 +23,6 @@ class AlterUsersTable extends Migration
      */
     public function down()
     {
+        //
     }
 }

@@ -18,4 +18,12 @@ class ApiController extends Controller {
             'data' => $dataset
         ], $status);
     }
+
+    public function sendIncorrectTokenResponse(string $token) {
+        return response()->json([
+            'response_status' => 'fail',
+            'error' => "Could not retrieve user from token",
+            'data' => ['token' => $token]
+        ], 401);
+    }
 }

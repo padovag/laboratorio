@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGitLabUsersTable extends Migration
+class CreateNewUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateGitLabUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('gitlab_users', function (Blueprint $table) {
-            $table->unsignedInteger('id')->autoIncrement();
+        Schema::create('users', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->string('name');
-            $table->string('user')->unique();
-            $table->string('password');
-            $table->string('gitlab_code')->nullable();
+            $table->string('username')->unique();
+            $table->string('registration_number')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class CreateGitLabUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('gitlab_users');
+        Schema::dropIfExists('users');
     }
 }
