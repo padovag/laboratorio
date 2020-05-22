@@ -9,21 +9,23 @@ use Illuminate\Support\Facades\Validator;
 
 class ClassroomController extends ApiController {
     public function store(Request $request) {
-        $validator = Validator::make($request->all(), ['name' => 'required']);
+        $validator = Validator::make($request->all(), ['name' => 'required', 'token' => 'required']);
 
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
         }
 
         try {
-            $classroom = new Classroom();
-            $classroom->name = $request['name'];
-            $classroom->description = $request['description'];
-            $classroom->create();
+            $classroom = Classroom::create(
+                $request['token'],
+                $request['name'],
+                $request['description'],
+                explode(",", trim($request['members']))
+            );
 
             return $this->sendSuccessResponse((array) $classroom);
         } catch(ClassroomException $exception) {
-            return $this->sendFailedResponse($exception->getMessage(), 400, (array) $classroom);
+            return $this->sendFailedResponse($exception->getMessage());
         }
     }
 }

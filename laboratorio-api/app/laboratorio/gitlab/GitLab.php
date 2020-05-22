@@ -30,6 +30,13 @@ class GitLab {
         return $response;
     }
 
+    public function getUser(string $username) {
+        $query_parameters = ['username' => $username];
+        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'users', $query_parameters, 'GET');
+
+        return $response;
+    }
+
     public function getUserById(string $user_id) {
         $query_parameters = ['id' => $user_id];
         $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'user', $query_parameters, 'GET');
@@ -37,26 +44,28 @@ class GitLab {
         return $response;
     }
 
-    public function createGroup(string $name, string $description): Response {
+    public function createGroup(string $name, string $description, string $token): Response {
         $query_parameters = ['name' => $name, 'path' => $name . '-group', 'description' => $description];
-        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'groups', $query_parameters);
+        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'groups', $query_parameters, 'POST', $token);
 
         return $response;
     }
 
-    public function addMembersToGroup(array $members_ids, string $group_id): Response {
+    public function addMembersToGroup(array $members_ids, string $group_id, string $token): Response {
         foreach($members_ids as $member_id) {
-            $response = $this->addMemberToGroup($member_id, $group_id);
+            $response = $this->addMemberToGroup($member_id, $group_id, $token);
         }
 
         return $response;
     }
 
-    public function addMemberToGroup(string $member_id, string $group_id, int $access_level = 30): Response {
+    public function addMemberToGroup(string $member_id, string $group_id, string $token, int $access_level = 30): Response {
         $response = $this->makeRequest(
             self::GITLAB_API_URI,
             $resource = "groups/{$group_id}/members",
-            ['user_id' => $member_id, 'access_level' => $access_level]
+            ['user_id' => $member_id, 'access_level' => $access_level],
+            'POST',
+            $token
         );
 
         return $response;
@@ -70,14 +79,14 @@ class GitLab {
         return getenv("GITLAB_CLIENT_SECRET");
     }
 
-    protected function makeRequest(string $uri, string $resource, array $query_parameters, string $method = 'POST'): Response {
+    protected function makeRequest(string $uri, string $resource, array $query_parameters, string $method = 'POST', string $token = null): Response {
         try {
             $client = new Client();
+            $query_parameters['private_token'] = $token;
             $response = $client->request(
                 $method,
                 $uri . $resource,
                 [
-                    'headers' => self::getHeaders(),
                     'query' => $query_parameters
                 ]
             );
@@ -86,12 +95,6 @@ class GitLab {
         } catch(ClientException $exception) {
             return new ErrorResponse($exception->getMessage());
         }
-    }
-
-    private static function getHeaders(): array {
-        return [
-            'PRIVATE-TOKEN' => GitLabTokenRepository::getToken()
-        ];
     }
 
     private function getUserIdByAccessToken(string $token): ?string {

@@ -37,8 +37,9 @@ class GitLabTest extends TestCase {
         $description = "Teste criação grupo GitLab";
         $gitlab_client = new GitLabForTests();
         $gitlab_client->mockSuccessResponse((object) ['name' => $name, 'description' => $description]);
+        $token = 123;
 
-        $response = $gitlab_client->createGroup($name, $description);
+        $response = $gitlab_client->createGroup($name, $description, $token);
 
         $this->assertInstanceOf(SuccessResponse::class, $response);
         $this->assertEquals($name, $response->data->name);
@@ -49,10 +50,11 @@ class GitLabTest extends TestCase {
         $user_id = 1215858;
         $access_level = 30; //developer access
         $group_id = 7244702;
+        $token = 123;
 
         $gitlab_client = new GitLabForTests();
         $gitlab_client->mockSuccessResponse((object) ['id' => $user_id, 'name' => 'Teste da Silva']);
-        $response = $gitlab_client->addMemberToGroup($user_id, $group_id, $access_level);
+        $response = $gitlab_client->addMemberToGroup($user_id, $group_id, $token, $access_level);
 
         $this->assertInstanceOf(SuccessResponse::class, $response);
         $this->assertEquals($user_id, $response->data->id);
