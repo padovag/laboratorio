@@ -38,6 +38,16 @@ class Classroom {
         return $members_added;
     }
 
+    public static function list(string $provider_access_token): array {
+        $groups = RemoteRepositoryResolver::resolve()->getGroups($provider_access_token);
+        $classrooms = array_map(function($group) use ($provider_access_token) {
+            $members = self::getGroupMembers($group, $provider_access_token);
+            return new self($group->name, $group->description, $members, $group->id);
+        }, $groups->data);
+
+        return $classrooms;
+    }
+
     private static function createGroup(string $provider_access_token, string $name, string $description): string {
         $response = RemoteRepositoryResolver::resolve()->createGroup($name, $description, $provider_access_token);
         if($response instanceof ErrorResponse) {
@@ -69,6 +79,15 @@ class Classroom {
         }
 
         return $users;
+    }
+
+    private static function getGroupMembers($group, string $provider_access_token): array {
+        $group_members = RemoteRepositoryResolver::resolve()->getGroupMembers($provider_access_token, $group->id);
+        $members = array_map(function($member) {
+            return $member->name;
+        }, $group_members->data);
+
+        return $members;
     }
 
 }

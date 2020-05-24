@@ -52,4 +52,22 @@ class ClassroomController extends ApiController {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
+
+    public function list(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $classrooms = Classroom::list($request['token']);
+
+            return $this->sendSuccessResponse($classrooms);
+        } catch(ClassroomException $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
 }

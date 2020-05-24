@@ -44,6 +44,12 @@ class GitLab {
         return $response;
     }
 
+    public function getGroups(string $token) {
+        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'groups', [], 'GET', $token);
+
+        return $response;
+    }
+
     public function createGroup(string $name, string $description, string $token): Response {
         $query_parameters = ['name' => $name, 'path' => $name . '-group', 'description' => $description];
         $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'groups', $query_parameters, 'POST', $token);
@@ -65,6 +71,18 @@ class GitLab {
             $resource = "groups/{$group_id}/members",
             ['user_id' => $member_id, 'access_level' => $access_level],
             'POST',
+            $token
+        );
+
+        return $response;
+    }
+
+    public function getGroupMembers(string $token, string $group_id) {
+        $response = $this->makeRequest(
+            self::GITLAB_API_URI,
+            $resource = "groups/{$group_id}/members",
+            [],
+            'GET',
             $token
         );
 
