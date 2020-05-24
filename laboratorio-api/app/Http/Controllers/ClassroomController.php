@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ClassroomController extends ApiController {
-    public function store(Request $request) {
+    public function create(Request $request) {
         $validator = Validator::make($request->all(), ['name' => 'required', 'token' => 'required']);
 
         if ($validator->fails()) {
@@ -24,6 +24,30 @@ class ClassroomController extends ApiController {
             );
 
             return $this->sendSuccessResponse((array) $classroom);
+        } catch(ClassroomException $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
+
+    public function add(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'members' => 'required',
+            'classroom_external_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $members = Classroom::addMembers(
+                $request['token'],
+                $request['classroom_external_id'],
+                explode(",", trim($request['members']))
+            );
+
+            return $this->sendSuccessResponse($members);
         } catch(ClassroomException $exception) {
             return $this->sendFailedResponse($exception->getMessage());
         }

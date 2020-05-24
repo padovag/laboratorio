@@ -28,6 +28,16 @@ class Classroom {
         return new self($name, $description, $members_added, $group_id);
     }
 
+    public static function addMembers(string $provider_access_token, string $external_id, array $members): array {
+        $members_added = self::addMembersToGroup($members, $external_id, $provider_access_token);
+
+        if(!$members_added) {
+            throw new ClassroomException("Could not find any members to add");
+        }
+
+        return $members_added;
+    }
+
     private static function createGroup(string $provider_access_token, string $name, string $description): string {
         $response = RemoteRepositoryResolver::resolve()->createGroup($name, $description, $provider_access_token);
         if($response instanceof ErrorResponse) {
@@ -37,7 +47,7 @@ class Classroom {
         return $response->data->id;
     }
 
-    public static function addMembersToGroup(array $members, string $group_id, string $provider_access_token): ?array {
+    private static function addMembersToGroup(array $members, string $group_id, string $provider_access_token): ?array {
         $users = self::getUsers($members);
         if(empty($users)) {
             return null;
