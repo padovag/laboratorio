@@ -14,4 +14,5 @@
 Route::post('/user/register', 'UserController@register');
 Route::post('/user/auth', 'UserController@authenticate');
 
-Route::post('/classroom', 'ClassroomController@store');
+Route::post('/classroom', 'ClassroomController@create');
+Route::post('/classroom/members', 'ClassroomController@add');
