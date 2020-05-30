@@ -4,7 +4,6 @@ namespace App\laboratorio\classroom;
 
 use App\laboratorio\RemoteRepositoryResolver;
 use App\laboratorio\util\http\ErrorResponse;
-use phpDocumentor\Reflection\Types\Self_;
 
 class Classroom {
     public $name;
@@ -51,6 +50,13 @@ class Classroom {
         }, $groups->data);
 
         return $classrooms;
+    }
+
+    public static function get(string $provider_access_token, string $external_id) {
+        $members = self::getGroupMembers($external_id, $provider_access_token);
+        $group_details = self::getGroupDetails($external_id, $provider_access_token);
+
+        return new self($group_details->name, $group_details->description, $members, $group_details->id, $group_details->avatar_url);
     }
 
     private static function createGroup(string $provider_access_token, string $name, string $description): string {
