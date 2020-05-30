@@ -4,16 +4,19 @@ namespace App\laboratorio\classroom;
 
 use App\laboratorio\RemoteRepositoryResolver;
 use App\laboratorio\util\http\ErrorResponse;
+use phpDocumentor\Reflection\Types\Self_;
 
 class Classroom {
     public $name;
     public $description;
+    public $avatar;
     public $members;
     public $external_id;
 
-    public function __construct(string $name, string $description, ?array $members, string $external_id) {
+    public function __construct(string $name, string $description, ?array $members, string $external_id, ?string $avatar = null) {
         $this->name = $name;
         $this->description = $description;
+        $this->avatar = $avatar;
         $this->members = $members;
         $this->external_id = $external_id;
     }
@@ -41,8 +44,10 @@ class Classroom {
     public static function list(string $provider_access_token): array {
         $groups = RemoteRepositoryResolver::resolve()->getGroups($provider_access_token);
         $classrooms = array_map(function($group) use ($provider_access_token) {
-            $members = self::getGroupMembers($group, $provider_access_token);
-            return new self($group->name, $group->description, $members, $group->id);
+            $members = self::getGroupMembers($group->id, $provider_access_token);
+            $details = self::getGroupDetails($group->id, $provider_access_token);
+
+            return new self($group->name, $group->description, $members, $group->id, $details->avatar_url);
         }, $groups->data);
 
         return $classrooms;
@@ -81,13 +86,19 @@ class Classroom {
         return $users;
     }
 
-    private static function getGroupMembers($group, string $provider_access_token): array {
-        $group_members = RemoteRepositoryResolver::resolve()->getGroupMembers($provider_access_token, $group->id);
+    private static function getGroupMembers($group_id, string $provider_access_token): array {
+        $group_members = RemoteRepositoryResolver::resolve()->getGroupMembers($provider_access_token, $group_id);
         $members = array_map(function($member) {
             return $member->name;
         }, $group_members->data);
 
         return $members;
+    }
+
+    private static function getGroupDetails($group_id, string $provider_access_token) {
+        $details = RemoteRepositoryResolver::resolve()->getGroupDetails($provider_access_token, $group_id);
+
+        return $details->data;
     }
 
 }

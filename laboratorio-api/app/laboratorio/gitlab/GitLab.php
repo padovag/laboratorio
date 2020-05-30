@@ -89,6 +89,18 @@ class GitLab {
         return $response;
     }
 
+    public function getGroupDetails(string $token, string $group_id) {
+        $response = $this->makeRequest(
+            self::GITLAB_API_URI,
+            $resource = "groups/{$group_id}",
+            [],
+            'GET',
+            $token
+        );
+
+        return $response;
+    }
+
     public static function getClientId() {
         return getenv("GITLAB_CLIENT_ID");
     }
