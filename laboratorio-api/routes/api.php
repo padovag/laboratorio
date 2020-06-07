@@ -21,3 +21,4 @@ Route::get('/classroom/{id}', 'ClassroomController@get');
 
 Route::post('/assignment', 'AssignmentController@create');
 Route::get('/assignment/{id}', 'AssignmentController@get');
+Route::post('/assignment/{id}/accept', 'AssignmentController@accept');
