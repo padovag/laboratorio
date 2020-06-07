@@ -60,7 +60,7 @@ class Classroom {
     }
 
     private static function createGroup(string $provider_access_token, string $name, string $description): string {
-        $response = RemoteRepositoryResolver::resolve()->createGroup($name, $description, $provider_access_token);
+        $response = RemoteRepositoryResolver::resolve()->createGroup($provider_access_token, $name, $description);
         if($response instanceof ErrorResponse) {
             throw new ClassroomException($response->data['error_message']);
         }

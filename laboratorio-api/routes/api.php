@@ -18,3 +18,5 @@ Route::get('/classroom', 'ClassroomController@list');
 Route::post('/classroom', 'ClassroomController@create');
 Route::post('/classroom/members', 'ClassroomController@add');
 Route::get('/classroom/{id}', 'ClassroomController@get');
+
+Route::post('/assignment', 'AssignmentController@create');
