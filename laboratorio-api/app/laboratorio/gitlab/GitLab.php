@@ -24,8 +24,7 @@ class GitLab {
     }
 
     public function getAccessTokenInfo(string $token) {
-        $query_parameters = ['access_token' => $token];
-        $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token/info', $query_parameters, 'GET');
+        $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token/info', [], 'GET', $token);
 
         return $response;
     }
@@ -100,6 +99,18 @@ class GitLab {
             $resource = "groups/{$group_id}",
             [],
             'GET',
+            $token
+        );
+
+        return $response;
+    }
+
+    public function createProject(string $token, string $group_id, string $name) {
+        $response = $this->makeRequest(
+            self::GITLAB_API_URI,
+            $resource = "projects",
+            ['namespace_id' => $group_id, 'name' => $name],
+            'POST',
             $token
         );
 
