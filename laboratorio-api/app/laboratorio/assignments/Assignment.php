@@ -8,14 +8,22 @@ use App\laboratorio\util\http\ErrorResponse;
 class Assignment {
     public $name;
     public $description;
-    public $classroom_external_id;
+    public $assignment_external_id;
     public $import_from;
+    public $parent_id;
 
-    public function __construct(string $name, ?string $description, string $classroom_external_id, ?string $import_from) {
+    public function __construct(
+        string $name,
+        ?string $description,
+        string $classroom_external_id,
+        ?string $import_from,
+        ?string $parent_id
+    ) {
         $this->name = $name;
         $this->description = $description;
-        $this->classroom_external_id = $classroom_external_id;
+        $this->assignment_external_id = $classroom_external_id;
         $this->import_from = $import_from;
+        $this->parent_id = $parent_id;
     }
 
     public static function create(string $provider_access_token, string $name, ?string $description, string $classroom_external_id, string $import_from) {
@@ -34,7 +42,24 @@ class Assignment {
             $response->data->name,
             self::getDescription($response->data->description),
             $response->data->id,
-            self::getImportUrlFromDescription($response->data->description)
+            self::getImportUrlFromDescription($response->data->description),
+            null
+        );
+    }
+
+    public static function get(string $provider_access_token, string $assignment_external_id) {
+        $response = RemoteRepositoryResolver::resolve()->getGroupDetails($provider_access_token, $assignment_external_id);
+
+        if($response instanceof ErrorResponse) {
+            throw new AssignmentException($response->data['error_message']);
+        }
+
+        return new self(
+            $response->data->name,
+            self::getDescription($response->data->description),
+            $response->data->id,
+            self::getImportUrlFromDescription($response->data->description),
+            $response->data->parent_id
         );
     }
 
