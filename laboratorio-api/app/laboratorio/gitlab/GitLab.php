@@ -104,11 +104,11 @@ class GitLab {
         return $response;
     }
 
-    public function createProject(string $token, string $group_id, string $name) {
+    public function createProject(string $token, string $group_id, string $name, string $import_from) {
         $response = $this->makeRequest(
             self::GITLAB_API_URI,
             $resource = "projects",
-            ['namespace_id' => $group_id, 'name' => $name],
+            ['namespace_id' => $group_id, 'name' => $name, 'import_url' => $import_from],
             'POST',
             $token
         );

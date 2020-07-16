@@ -71,8 +71,22 @@ class Assignment {
     }
 
     public static function accept(string $provider_access_token, string $assignment_external_id) {
-        $accepted_assignment_name = self::getAcceptedAssignmentsName($provider_access_token, $assignment_external_id);
-        $response = RemoteRepositoryResolver::resolve()->createProject($provider_access_token, $assignment_external_id, $accepted_assignment_name);
+        $user = (new GitUser())->getFromProvider($provider_access_token);
+        if(is_null($user)) {
+            throw new AssignmentException("User could not be found");
+        }
+
+        $base_assignments_information = self::get($provider_access_token, $assignment_external_id);
+        if(is_null($base_assignments_information)) {
+            throw new AssignmentException("Base assignment could not be found");
+        }
+
+        $response = RemoteRepositoryResolver::resolve()->createProject(
+            $provider_access_token,
+            $assignment_external_id,
+            self::getAcceptedAssignmentsName($user, $base_assignments_information),
+            $base_assignments_information->import_from
+        );
 
         if($response instanceof ErrorResponse) {
             throw new AssignmentException($response->data['error_message']);
@@ -83,7 +97,7 @@ class Assignment {
             $description            = null,
             $assignment_external_id = $response->data->id,
             $classroom_external_id  = null, // todo
-            $import_from            = null,
+            $import_from            = $base_assignments_information->import_from,
             $parent_id              = $response->data->namespace->id
         );
     }
@@ -104,15 +118,8 @@ class Assignment {
         return json_decode($description);
     }
 
-    public static function getAcceptedAssignmentsName(string $provider_access_token, string $assignment_external_id): string {
-        $base_assignments_information = self::get($provider_access_token, $assignment_external_id);
-        $user = (new GitUser())->getFromProvider($provider_access_token);
-
-        if(is_null($user) || is_null($base_assignments_information)) {
-            throw new AssignmentException("User or base assignment could not be found");
-        }
-
-        $accepted_assignment_name = "{$user->name}-{$base_assignments_information->name}";
+    public static function getAcceptedAssignmentsName(GitUser $user, Assignment $assignment): string {
+        $accepted_assignment_name = "{$user->name}-{$assignment->name}";
 
         return $accepted_assignment_name;
     }
