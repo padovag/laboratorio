@@ -37,8 +37,7 @@ class GitLab {
     }
 
     public function getUserById(string $user_id) {
-        $query_parameters = ['id' => $user_id];
-        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'user', $query_parameters, 'GET');
+        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = "users/{$user_id}", [], 'GET');
 
         return $response;
     }
@@ -49,7 +48,7 @@ class GitLab {
         return $response;
     }
 
-    public function createGroup(string $token, string $name, string $description, ?string $parent_id): Response {
+    public function createGroup(string $token, string $name, string $description, ?string $parent_id = null): Response {
         $query_parameters = [
             'name' => $name,
             'path' => $name . '-group',
@@ -128,7 +127,11 @@ class GitLab {
     protected function makeRequest(string $uri, string $resource, array $query_parameters, string $method = 'POST', string $token = null): Response {
         try {
             $client = new Client();
-            $query_parameters['private_token'] = $token;
+
+            if(!is_null($token)) {
+                $query_parameters['access_token'] = $token;
+            }
+
             $response = $client->request(
                 $method,
                 $uri . $resource,
