@@ -67,4 +67,20 @@ class AssignmentController extends ApiController {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
+
+    public function getStudents(Request $request) {
+        $validator = Validator::make($request->all(), ['token' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $students = Assignment::getStudents($request['token'], $request['id'], $request['assignment_status']);
+
+            return $this->sendSuccessResponse((array) $students);
+        } catch(AssignmentException $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
 }

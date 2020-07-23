@@ -13,14 +13,26 @@ class Assignment {
     public $assignment_external_id;
     public $import_from;
     public $parent_id;
+    public $students;
 
+    /**
+     * Assignment constructor.
+     * @param string $name
+     * @param string|null $description
+     * @param string $assignment_external_id
+     * @param string|null $classroom_external_id
+     * @param string|null $import_from
+     * @param string|null $parent_id
+     * @param AssignmentStudent[] $students
+     */
     public function __construct(
         string $name,
         ?string $description,
         string $assignment_external_id,
         ?string $classroom_external_id,
         ?string $import_from,
-        ?string $parent_id
+        ?string $parent_id,
+        array $students = null
     ) {
         $this->name = $name;
         $this->description = $description;
@@ -28,6 +40,7 @@ class Assignment {
         $this->assignment_external_id = $assignment_external_id;
         $this->import_from = $import_from;
         $this->parent_id = $parent_id;
+        $this->students = $students;
     }
 
     public static function create(string $provider_access_token, string $name, ?string $description, string $classroom_external_id, string $import_from) {
@@ -99,6 +112,35 @@ class Assignment {
             $classroom_external_id  = null, // todo
             $import_from            = $base_assignments_information->import_from,
             $parent_id              = $response->data->namespace->id
+        );
+    }
+
+    public static function getStudents(string $provider_access_token, string $assignment_external_id, string $assignment_status = null) {
+        $response = RemoteRepositoryResolver::resolve()->getGroupDetails($provider_access_token, $assignment_external_id);
+
+        if($response instanceof ErrorResponse) {
+            throw new AssignmentException($response->data['error_message']);
+        }
+
+        var_dump($response->data->projects);
+
+        $students = array_map(function($project) {
+            $parts = explode('-', $project->name);
+            $student_user = $parts[0];
+            $accepted_at = $project->created_at;
+            $remote_url = $project->web_url;
+
+            return new AssignmentStudent($student_user, $accepted_at, $remote_url);
+        }, $response->data->projects);
+
+        return new self(
+            $name                   = $response->data->name,
+            $description            = self::getDescription($response->data->description),
+            $assignment_external_id = $response->data->id,
+            $classroom_external_id  = $response->data->parent_id,
+            $import_from            = self::getImportUrlFromDescription($response->data->description),
+            $parent_id              = $response->data->parent_id,
+            $students
         );
     }
 
