@@ -116,6 +116,18 @@ class GitLab {
         return $response;
     }
 
+    public function getCommits(string $token, string $project_id) {
+        $response = $this->makeRequest(
+            self::GITLAB_API_URI,
+            $resource = "projects/{$project_id}/repository/commits" ,
+            [],
+            'GET',
+            $token
+        );
+
+        return $response;
+    }
+
     public static function getClientId() {
         return getenv("GITLAB_CLIENT_ID");
     }

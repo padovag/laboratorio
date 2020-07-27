@@ -6,6 +6,7 @@ use App\laboratorio\assignments\Assignment;
 use App\laboratorio\assignments\AssignmentException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AssignmentController extends ApiController {
     private const IMPORT_FROM_PATTERN = '/http.*.\.git/';
@@ -69,7 +70,7 @@ class AssignmentController extends ApiController {
     }
 
     public function getStudents(Request $request) {
-        $validator = Validator::make($request->all(), ['token' => 'required']);
+        $validator = Validator::make($request->all(), ['token' => 'required', 'assignment_status' => Rule::in(['done'])]);
 
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
