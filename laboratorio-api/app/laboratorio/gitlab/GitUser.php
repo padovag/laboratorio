@@ -4,7 +4,6 @@ namespace App\laboratorio\gitlab;
 
 use App\laboratorio\RemoteRepositoryResolver;
 use App\laboratorio\util\http\ErrorResponse;
-use Exception;
 
 class GitUser {
     public $name;
@@ -15,8 +14,14 @@ class GitUser {
         $this->username = $username;
     }
 
-    public function getFromProvider(string $user_token): ?GitUser {
-        $response = RemoteRepositoryResolver::resolve()->getUserByAccessToken($user_token);
+    public function getFromProvider(string $code): ?GitUser {
+        $token_response = RemoteRepositoryResolver::resolve()->getUserToken($code);
+        if($token_response instanceof ErrorResponse) {
+            return null;
+        }
+
+        $token = $token_response->data->access_token;
+        $response = RemoteRepositoryResolver::resolve()->getUserByAccessToken($token);
         if($response instanceof ErrorResponse) {
             return null;
         }
