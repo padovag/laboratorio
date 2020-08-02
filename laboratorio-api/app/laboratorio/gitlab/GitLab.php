@@ -12,6 +12,19 @@ class GitLab {
     private const GITLAB_URI = "https://gitlab.com/";
     private const GITLAB_API_URI = self::GITLAB_URI . "api/v4/";
 
+    public function getUserToken(string $code) {
+        $query_parameters = [
+            'client_id' => self::getClientId(),
+            'client_secret' => self::getClientSecret(),
+            'code' => $code,
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => 'http://127.0.0.1:8000'
+        ];
+        $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
+
+        return $response;
+    }
+
     public function getUserByAccessToken(string $token) {
         try {
             $user_id = $this->getUserIdByAccessToken($token);

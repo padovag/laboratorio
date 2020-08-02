@@ -13,33 +13,33 @@ class UserController extends ApiController {
     public function register(Request $request) {
         try {
             $validator = Validator::make($request->all(), [
-                'token' => 'required',
+                'code' => 'required',
             ]);
 
             if ($validator->fails()) {
                 return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
             }
 
-            $git_user = $this->getUserFromToken($request['token']);
+            $git_user = $this->getUserFromCode($request['code']);
             $user = $this->store($git_user, $request['registration_number']);
 
             return $this->sendSuccessResponse((array) $user->getAttributes());
         } catch(TokenException $exception) {
-            return $this->sendIncorrectTokenResponse($request['token']);
+            return $this->sendIncorrectTokenResponse($request['code']);
         }
     }
 
     public function authenticate(Request $request) {
         try {
             $validator = Validator::make($request->all(), [
-                'token' => 'required',
+                'code' => 'required',
             ]);
 
             if ($validator->fails()) {
                 return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
             }
 
-            $git_user = $this->getUserFromToken($request['token']);
+            $git_user = $this->getUserFromCode($request['code']);
             $user = User::where('username', $git_user->username)->first();
             $registration_error = null;
             if(!$user) {
@@ -63,11 +63,11 @@ class UserController extends ApiController {
         return $user;
     }
 
-    private function getUserFromToken(string $token): ?GitUser {
-        $git_user = (new GitUser())->getFromProvider($token);
+    private function getUserFromCode(string $code): ?GitUser {
+        $git_user = (new GitUser())->getFromProvider($code);
 
         if(is_null($git_user)) {
-            throw new TokenException("Could not retrieve user from token");
+            throw new TokenException("Could not retrieve user from code");
         }
 
         return $git_user;
