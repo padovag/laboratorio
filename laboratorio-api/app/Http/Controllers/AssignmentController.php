@@ -13,7 +13,7 @@ class AssignmentController extends ApiController {
 
     public function create(Request $request) {
         $validator = Validator::make($request->all(), [
-            'token' => 'required',
+            'code' => 'required',
             'name' => 'required',
             'classroom_external_id' => 'required',
             'import_from' => 'regex:' . self::IMPORT_FROM_PATTERN
@@ -25,7 +25,7 @@ class AssignmentController extends ApiController {
 
         try {
             $assigment = Assignment::create(
-                $request['token'],
+                $request['code'],
                 $request['name'],
                 $request['description'],
                 $request['classroom_external_id'],
@@ -54,14 +54,14 @@ class AssignmentController extends ApiController {
     }
 
     public function accept(Request $request) {
-        $validator = Validator::make($request->all(), ['token' => 'required']);
+        $validator = Validator::make($request->all(), ['code' => 'required']);
 
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
         }
 
         try {
-            $accepted_assignment = Assignment::accept($request['token'], $request['id']);
+            $accepted_assignment = Assignment::accept($request['code'], $request['id']);
 
             return $this->sendSuccessResponse((array) $accepted_assignment);
         } catch(AssignmentException $exception) {
@@ -70,14 +70,14 @@ class AssignmentController extends ApiController {
     }
 
     public function getStudents(Request $request) {
-        $validator = Validator::make($request->all(), ['token' => 'required', 'assignment_status' => Rule::in(['done'])]);
+        $validator = Validator::make($request->all(), ['code' => 'required', 'assignment_status' => Rule::in(['done'])]);
 
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
         }
 
         try {
-            $students = Assignment::getStudents($request['token'], $request['id'], $request['assignment_status']);
+            $students = Assignment::getStudents($request['code'], $request['id'], $request['assignment_status']);
 
             return $this->sendSuccessResponse((array) $students);
         } catch(AssignmentException $exception) {

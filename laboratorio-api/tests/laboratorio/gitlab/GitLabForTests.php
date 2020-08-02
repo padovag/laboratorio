@@ -18,7 +18,7 @@ class GitLabForTests extends GitLab {
         $this->mocked_response = new ErrorResponse($error);
     }
 
-    protected function makeRequest(string $uri, string $resource, array $query_parameters, string $method = 'POST'): Response {
+    protected function makeRequestWithCode(string $uri, string $resource, array $query_parameters, string $method = 'POST'): Response {
         return $this->mocked_response ?? new ErrorResponse("You have to mock a response");
     }
 }

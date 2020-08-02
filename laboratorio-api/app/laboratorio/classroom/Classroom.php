@@ -20,18 +20,18 @@ class Classroom {
         $this->external_id = $external_id;
     }
 
-    public static function create(string $provider_access_token, string $name, string $description, array $members) {
-        $group_id = self::createGroup($provider_access_token, $name, $description);
+    public static function create(string $code, string $name, string $description, array $members) {
+        $group_id = self::createGroup($code, $name, $description);
 
         if(!empty($members)){
-            $members_added = self::addMembersToGroup($members, $group_id, $provider_access_token);
+            $members_added = self::addMembersToGroup($members, $group_id, $code);
         }
 
         return new self($name, $description, $members_added, $group_id);
     }
 
-    public static function addMembers(string $provider_access_token, string $external_id, array $members): array {
-        $members_added = self::addMembersToGroup($members, $external_id, $provider_access_token);
+    public static function addMembers(string $code, string $external_id, array $members): array {
+        $members_added = self::addMembersToGroup($members, $external_id, $code);
 
         if(!$members_added) {
             throw new ClassroomException("Could not find any members to add");
@@ -40,11 +40,11 @@ class Classroom {
         return $members_added;
     }
 
-    public static function list(string $provider_access_token): array {
-        $groups = RemoteRepositoryResolver::resolve()->getGroups($provider_access_token);
-        $classrooms = array_map(function($group) use ($provider_access_token) {
-            $members = self::getGroupMembers($group->id, $provider_access_token);
-            $details = self::getGroupDetails($group->id, $provider_access_token);
+    public static function list(string $code): array {
+        $groups = RemoteRepositoryResolver::resolve()->getGroups($code);
+        $classrooms = array_map(function($group) use ($code) {
+            $members = self::getGroupMembers($group->id, $code);
+            $details = self::getGroupDetails($group->id, $code);
 
             return new self($group->name, $group->description, $members, $group->id, $details->avatar_url);
         }, $groups->data);
@@ -52,15 +52,15 @@ class Classroom {
         return $classrooms;
     }
 
-    public static function get(string $provider_access_token, string $external_id) {
-        $members = self::getGroupMembers($external_id, $provider_access_token);
-        $group_details = self::getGroupDetails($external_id, $provider_access_token);
+    public static function get(string $code, string $external_id) {
+        $members = self::getGroupMembers($external_id, $code);
+        $group_details = self::getGroupDetails($external_id, $code);
 
         return new self($group_details->name, $group_details->description, $members, $group_details->id, $group_details->avatar_url);
     }
 
-    private static function createGroup(string $provider_access_token, string $name, string $description): string {
-        $response = RemoteRepositoryResolver::resolve()->createGroup($provider_access_token, $name, $description);
+    private static function createGroup(string $code, string $name, string $description): string {
+        $response = RemoteRepositoryResolver::resolve()->createGroup($code, $name, $description);
         if($response instanceof ErrorResponse) {
             throw new ClassroomException($response->data['error_message']);
         }
@@ -68,13 +68,13 @@ class Classroom {
         return $response->data->id;
     }
 
-    private static function addMembersToGroup(array $members, string $group_id, string $provider_access_token): ?array {
+    private static function addMembersToGroup(array $members, string $group_id, string $code): ?array {
         $users = self::getUsers($members);
         if(empty($users)) {
             return null;
         }
 
-        RemoteRepositoryResolver::resolve()->addMembersToGroup($users, $group_id, $provider_access_token);
+        RemoteRepositoryResolver::resolve()->addMembersToGroup($users, $group_id, $code);
 
         return array_keys($users);
     }
@@ -92,8 +92,8 @@ class Classroom {
         return $users;
     }
 
-    private static function getGroupMembers($group_id, string $provider_access_token): array {
-        $group_members = RemoteRepositoryResolver::resolve()->getGroupMembers($provider_access_token, $group_id);
+    private static function getGroupMembers($group_id, string $code): array {
+        $group_members = RemoteRepositoryResolver::resolve()->getGroupMembers($code, $group_id);
         $members = array_map(function($member) {
             return $member->name;
         }, $group_members->data);
@@ -101,8 +101,8 @@ class Classroom {
         return $members;
     }
 
-    private static function getGroupDetails($group_id, string $provider_access_token) {
-        $details = RemoteRepositoryResolver::resolve()->getGroupDetails($provider_access_token, $group_id);
+    private static function getGroupDetails($group_id, string $code) {
+        $details = RemoteRepositoryResolver::resolve()->getGroupDetails($code, $group_id);
 
         return $details->data;
     }
