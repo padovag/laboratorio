@@ -2,27 +2,30 @@
 
 namespace App\laboratorio\gitlab;
 
-//use Illuminate\Support\Facades\Redis;
+use App\laboratorio\RemoteRepositoryResolver;
+use App\laboratorio\TokenException;
+use App\laboratorio\util\http\ErrorResponse;
+use Illuminate\Support\Facades\Redis;
 
 class GitLabTokenRepository {
-//    private $token;
+    public static function getToken(string $code) {
+        $token = Redis::get($code);
+        if(!is_null($token)) {
+            return $token;
+        }
 
-    public static function getToken(): string {
-//        if(isset($this->token) && !$this->isExpired()) {
-//            return $this->token;
-//        }
-//
-//        return $this->token = $this->generateToken();
+        self::retrieveAndSaveToken($code);
 
-//        $token = Redis::get('gitlab_token');
-        return "VDjCAhdpdycL2wMfPknj";
+        return self::getToken($code);
     }
 
-    private function isExpired(): bool {
-        //
-    }
+    public static function retrieveAndSaveToken(string $code): void {
+        $token_response = RemoteRepositoryResolver::resolve()->getUserToken($code);
+        if($token_response instanceof ErrorResponse) {
+            throw new TokenException("Could not retrieve token from code");
+        }
 
-    private function generateToken(){
-//        return GitLab::generateToken();
+        $token = $token_response->data->access_token;
+        Redis::set($code, $token);
     }
 }
