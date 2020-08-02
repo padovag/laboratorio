@@ -15,12 +15,7 @@ class GitUser {
     }
 
     public function getFromProvider(string $code): ?GitUser {
-        $token_response = RemoteRepositoryResolver::resolve()->getUserToken($code);
-        if($token_response instanceof ErrorResponse) {
-            return null;
-        }
-
-        $token = $token_response->data->access_token;
+        $token = GitLabTokenRepository::getToken($code);
         $response = RemoteRepositoryResolver::resolve()->getUserByAccessToken($token);
         if($response instanceof ErrorResponse) {
             return null;

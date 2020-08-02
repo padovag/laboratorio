@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\laboratorio\gitlab\GitLabTokenRepository;
 use App\laboratorio\gitlab\GitUser;
 use App\laboratorio\TokenException;
 use App\User;
@@ -48,7 +49,7 @@ class UserController extends ApiController {
 
             return $this->sendSuccessResponse(['username' => $git_user->username, 'registration_error' => $registration_error]);
         } catch(TokenException $exception) {
-            return $this->sendIncorrectTokenResponse($request['token']);
+            return $this->sendIncorrectTokenResponse($request['code']);
         }
     }
 
