@@ -20,7 +20,7 @@ class GitLab {
             'grant_type' => 'authorization_code',
             'redirect_uri' => 'http://127.0.0.1:8000'
         ];
-        $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
+        $response = $this->makeRequestWithCode(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
 
         return $response;
     }
@@ -55,87 +55,87 @@ class GitLab {
         return $response;
     }
 
-    public function getGroups(string $token) {
-        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'groups', [], 'GET', $token);
+    public function getGroups(string $code) {
+        $response = $this->makeRequestWithCode(self::GITLAB_API_URI, $resource = 'groups', [], 'GET', $code);
 
         return $response;
     }
 
-    public function createGroup(string $token, string $name, string $description, ?string $parent_id = null): Response {
+    public function createGroup(string $code, string $name, string $description, ?string $parent_id = null): Response {
         $query_parameters = [
             'name' => $name,
             'path' => $name . '-group',
             'description' => $description,
             'parent_id' => $parent_id,
         ];
-        $response = $this->makeRequest(self::GITLAB_API_URI, $resource = 'groups', $query_parameters, 'POST', $token);
+        $response = $this->makeRequestWithCode(self::GITLAB_API_URI, $resource = 'groups', $query_parameters, 'POST', $code);
 
         return $response;
     }
 
-    public function addMembersToGroup(array $members_ids, string $group_id, string $token): Response {
+    public function addMembersToGroup(array $members_ids, string $group_id, string $code): Response {
         foreach($members_ids as $member_id) {
-            $response = $this->addMemberToGroup($member_id, $group_id, $token);
+            $response = $this->addMemberToGroup($member_id, $group_id, $code);
         }
 
         return $response;
     }
 
-    public function addMemberToGroup(string $member_id, string $group_id, string $token, int $access_level = 30): Response {
-        $response = $this->makeRequest(
+    public function addMemberToGroup(string $member_id, string $group_id, string $code, int $access_level = 30): Response {
+        $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "groups/{$group_id}/members",
             ['user_id' => $member_id, 'access_level' => $access_level],
             'POST',
-            $token
+            $code
         );
 
         return $response;
     }
 
-    public function getGroupMembers(string $token, string $group_id) {
-        $response = $this->makeRequest(
+    public function getGroupMembers(string $code, string $group_id) {
+        $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "groups/{$group_id}/members",
             [],
             'GET',
-            $token
+            $code
         );
 
         return $response;
     }
 
-    public function getGroupDetails(string $token, string $group_id) {
-        $response = $this->makeRequest(
+    public function getGroupDetails(string $code, string $group_id) {
+        $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "groups/{$group_id}",
             [],
             'GET',
-            $token
+            $code
         );
 
         return $response;
     }
 
-    public function createProject(string $token, string $group_id, string $name, string $import_from) {
-        $response = $this->makeRequest(
+    public function createProject(string $code, string $group_id, string $name, string $import_from) {
+        $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "projects",
             ['namespace_id' => $group_id, 'name' => $name, 'import_url' => $import_from],
             'POST',
-            $token
+            $code
         );
 
         return $response;
     }
 
-    public function getCommits(string $token, string $project_id) {
-        $response = $this->makeRequest(
+    public function getCommits(string $code, string $project_id) {
+        $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "projects/{$project_id}/repository/commits" ,
             [],
             'GET',
-            $token
+            $code
         );
 
         return $response;
@@ -147,6 +147,11 @@ class GitLab {
 
     public static function getClientSecret() {
         return getenv("GITLAB_CLIENT_SECRET");
+    }
+
+    private function makeRequestWithCode(string $uri, string $resource, array $query_parameters, string $method = 'POST', string $code): Response {
+        $token = GitLabTokenRepository::getToken($code);
+        return $this->makeRequest($uri, $resource, $query_parameters, $method, $token);
     }
 
     protected function makeRequest(string $uri, string $resource, array $query_parameters, string $method = 'POST', string $token = null): Response {

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\laboratorio\gitlab\GitLabTokenRepository;
 use App\laboratorio\gitlab\GitUser;
 use App\laboratorio\TokenException;
 use App\User;

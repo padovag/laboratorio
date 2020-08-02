@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ClassroomController extends ApiController {
     public function create(Request $request) {
-        $validator = Validator::make($request->all(), ['name' => 'required', 'token' => 'required']);
+        $validator = Validator::make($request->all(), ['name' => 'required', 'code' => 'required']);
 
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
@@ -17,7 +17,7 @@ class ClassroomController extends ApiController {
 
         try {
             $classroom = Classroom::create(
-                $request['token'],
+                $request['code'],
                 $request['name'],
                 $request['description'],
                 explode(",", trim($request['members']))
@@ -31,7 +31,7 @@ class ClassroomController extends ApiController {
 
     public function add(Request $request) {
         $validator = Validator::make($request->all(), [
-            'token' => 'required',
+            'code' => 'required',
             'members' => 'required',
             'classroom_external_id' => 'required'
         ]);
@@ -42,7 +42,7 @@ class ClassroomController extends ApiController {
 
         try {
             $members = Classroom::addMembers(
-                $request['token'],
+                $request['code'],
                 $request['classroom_external_id'],
                 explode(",", trim($request['members']))
             );
@@ -55,7 +55,7 @@ class ClassroomController extends ApiController {
 
     public function list(Request $request) {
         $validator = Validator::make($request->all(), [
-            'token' => 'required'
+            'code' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -63,7 +63,7 @@ class ClassroomController extends ApiController {
         }
 
         try {
-            $classrooms = Classroom::list($request['token']);
+            $classrooms = Classroom::list($request['code']);
 
             return $this->sendSuccessResponse($classrooms);
         } catch(ClassroomException $exception) {
@@ -73,7 +73,7 @@ class ClassroomController extends ApiController {
 
     public function get(Request $request) {
         $validator = Validator::make($request->all(), [
-            'token' => 'required',
+            'code' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +81,7 @@ class ClassroomController extends ApiController {
         }
 
         try {
-            $classroom = Classroom::get($request['token'], $request['id']);
+            $classroom = Classroom::get($request['code'], $request['id']);
 
             return $this->sendSuccessResponse((array)$classroom);
         } catch(ClassroomException $exception) {

@@ -43,9 +43,9 @@ class Assignment {
         $this->students = $students;
     }
 
-    public static function create(string $provider_access_token, string $name, ?string $description, string $classroom_external_id, string $import_from) {
+    public static function create(string $code, string $name, ?string $description, string $classroom_external_id, string $import_from) {
         $response = RemoteRepositoryResolver::resolve()->createGroup(
-            $provider_access_token,
+            $code,
             $name,
             self::buildDescription($description, $import_from),
             $classroom_external_id
@@ -65,8 +65,8 @@ class Assignment {
         );
     }
 
-    public static function get(string $provider_access_token, string $assignment_external_id) {
-        $response = RemoteRepositoryResolver::resolve()->getGroupDetails($provider_access_token, $assignment_external_id);
+    public static function get(string $code, string $assignment_external_id) {
+        $response = RemoteRepositoryResolver::resolve()->getGroupDetails($code, $assignment_external_id);
         // to do get child assignments
 
         if($response instanceof ErrorResponse) {
@@ -83,19 +83,19 @@ class Assignment {
         );
     }
 
-    public static function accept(string $provider_access_token, string $assignment_external_id) {
-        $user = (new GitUser())->getFromProvider($provider_access_token);
+    public static function accept(string $code, string $assignment_external_id) {
+        $user = (new GitUser())->getFromProvider($code);
         if(is_null($user)) {
             throw new AssignmentException("User could not be found");
         }
 
-        $base_assignments_information = self::get($provider_access_token, $assignment_external_id);
+        $base_assignments_information = self::get($code, $assignment_external_id);
         if(is_null($base_assignments_information)) {
             throw new AssignmentException("Base assignment could not be found");
         }
 
         $response = RemoteRepositoryResolver::resolve()->createProject(
-            $provider_access_token,
+            $code,
             $assignment_external_id,
             self::getAcceptedAssignmentsName($user, $base_assignments_information),
             $base_assignments_information->import_from
@@ -115,8 +115,8 @@ class Assignment {
         );
     }
 
-    public static function getStudents(string $provider_access_token, string $assignment_external_id, string $assignment_status = null) {
-        $assignment_students = self::getAllStudents($provider_access_token, $assignment_external_id);
+    public static function getStudents(string $code, string $assignment_external_id, string $assignment_status = null) {
+        $assignment_students = self::getAllStudents($code, $assignment_external_id);
         if(isset($assignment_status)) {
             $students_with_status = array_filter($assignment_students->students, function($student) {
                 return !empty($student->contributions);
@@ -148,20 +148,20 @@ class Assignment {
         return $accepted_assignment_name;
     }
 
-    public static function getAllStudents(string $provider_access_token, string $assignment_external_id): Assignment {
-        $response = RemoteRepositoryResolver::resolve()->getGroupDetails($provider_access_token, $assignment_external_id);
+    public static function getAllStudents(string $code, string $assignment_external_id): Assignment {
+        $response = RemoteRepositoryResolver::resolve()->getGroupDetails($code, $assignment_external_id);
 
         if($response instanceof ErrorResponse) {
             throw new AssignmentException($response->data['error_message']);
         }
 
-        $students = array_map(function($project) use ($provider_access_token) {
+        $students = array_map(function($project) use ($code) {
             $parts = explode('-', $project->name);
             $student_user = $parts[0];
             $accepted_at = $project->created_at;
             $remote_url = $project->web_url;
 
-            $response = RemoteRepositoryResolver::resolve()->getCommits($provider_access_token, $project->id);
+            $response = RemoteRepositoryResolver::resolve()->getCommits($code, $project->id);
             $commits = array_map(function($commits) {
                 return ["message" => $commits->message, "date" => $commits->committed_date];
             }, $response->data);
