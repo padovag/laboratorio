@@ -18,7 +18,7 @@ class GitLab {
             'client_secret' => self::getClientSecret(),
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => 'http://127.0.0.1:8000'
+            'redirect_uri' => 'http://localhost:8080/authenticate'
         ];
         $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
 
