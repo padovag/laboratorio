@@ -20,7 +20,7 @@ class GitLab {
             'grant_type' => 'authorization_code',
             'redirect_uri' => 'http://127.0.0.1:8000'
         ];
-        $response = $this->makeRequestWithCode(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
+        $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
 
         return $response;
     }
