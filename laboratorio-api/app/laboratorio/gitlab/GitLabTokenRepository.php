@@ -21,6 +21,8 @@ class GitLabTokenRepository {
 
     public static function retrieveAndSaveToken(string $code): void {
         $token_response = RemoteRepositoryResolver::resolve()->getUserToken($code);
+
+        var_dump($token_response);
         if($token_response instanceof ErrorResponse) {
             throw new TokenException("Could not retrieve token from code");
         }
