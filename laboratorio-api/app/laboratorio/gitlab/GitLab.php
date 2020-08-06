@@ -61,6 +61,12 @@ class GitLab {
         return $response;
     }
 
+    public function getSubgroups(string $code, string $group_id) {
+        $response = $this->makeRequestWithCode(self::GITLAB_API_URI, $resource = "groups/{$group_id}/subgroups", [], 'GET', $code);
+
+        return $response;
+    }
+
     public function createGroup(string $code, string $name, string $description, ?string $parent_id = null): Response {
         $query_parameters = [
             'name' => $name,
