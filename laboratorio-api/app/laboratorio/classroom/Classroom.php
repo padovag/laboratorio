@@ -43,10 +43,9 @@ class Classroom {
     public static function list(string $code): array {
         $groups = RemoteRepositoryResolver::resolve()->getGroups($code);
         $classrooms = array_map(function($group) use ($code) {
-            $members = self::getGroupMembers($group->id, $code);
             $details = self::getGroupDetails($group->id, $code);
 
-            return new self($group->name, $group->description, $members, $group->id, $details->avatar_url);
+            return new self($group->name, $group->description, null, $group->id, $details->avatar_url);
         }, $groups->data);
 
         return $classrooms;
