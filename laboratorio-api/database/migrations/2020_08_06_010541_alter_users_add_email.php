@@ -16,6 +16,7 @@ class AlterUsersAddEmail extends Migration
         Schema::table('users', function($table) {
             $table->string('university_email')->nullable();
             $table->string('avatar_url')->nullable();
+            $table->string('type');
         });
     }
 
