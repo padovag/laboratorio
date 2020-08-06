@@ -46,7 +46,7 @@ class UserController extends ApiController {
                 $registration_error = "User {$git_user->username} is not registered on our database. Register it now.";
             }
 
-            return $this->sendSuccessResponse(['username' => $git_user->username, 'registration_error' => $registration_error]);
+            return $this->sendSuccessResponse(['user' => $user, 'registration_error' => $registration_error]);
         } catch(TokenException $exception) {
             return $this->sendIncorrectTokenResponse($request['code']);
         }
