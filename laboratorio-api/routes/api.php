@@ -19,6 +19,7 @@ Route::post('/classroom', 'ClassroomController@create');
 Route::post('/classroom/members', 'ClassroomController@add');
 Route::get('/classroom/{id}', 'ClassroomController@get');
 
+Route::get('/classroom/{id}/assignments', 'AssignmentController@list');
 Route::post('/assignment', 'AssignmentController@create');
 Route::get('/assignment/{id}', 'AssignmentController@get');
 Route::post('/assignment/{id}/accept', 'AssignmentController@accept');

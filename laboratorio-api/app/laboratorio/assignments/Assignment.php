@@ -180,4 +180,23 @@ class Assignment {
         );
     }
 
+    public static function list(string $classroom_external_id, string $code) {
+        $response = RemoteRepositoryResolver::resolve()->getSubgroups($code, $classroom_external_id);
+
+        if($response instanceof ErrorResponse) {
+            throw new AssignmentException($response->data['error_message']);
+        }
+
+        return array_map(function($subgroup) {
+            return new self(
+                $name = $subgroup->name,
+                $description = self::getDescription($subgroup->description),
+                $assignment_external_id = $subgroup->id,
+                $classroom_external_id = $subgroup->parent_id,
+                $import_from = self::getImportUrlFromDescription($subgroup->description),
+                $parent_id = $subgroup->parent_id
+            );
+        }, $response->data);
+    }
+
 }
