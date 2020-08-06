@@ -56,7 +56,7 @@ class GitLab {
     }
 
     public function getGroups(string $code) {
-        $response = $this->makeRequestWithCode(self::GITLAB_API_URI, $resource = 'groups', [], 'GET', $code);
+        $response = $this->makeRequestWithCode(self::GITLAB_API_URI, $resource = 'groups', ['top_level_only' => true], 'GET', $code);
 
         return $response;
     }
