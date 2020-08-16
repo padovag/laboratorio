@@ -52,6 +52,30 @@ class UserController extends ApiController {
         }
     }
 
+    public function list(Request $request) {
+        try {
+            $validator = Validator::make($request->all(), [
+                'code' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+            }
+
+            $git_user = $this->getUserFromCode($request['code']);
+            $user = User::where('username', $git_user->username)->first();
+            if($user->type != User::TYPE_TEACHER) {
+                return $this->sendFailedResponse("Validation error", $status = 400, ['Only teachers can list all students from the system']);
+            }
+
+            $users = User::all();
+
+            return $this->sendSuccessResponse(['users' => $users]);
+        } catch(TokenException $exception) {
+            return $this->sendIncorrectTokenResponse($request['code']);
+        }
+    }
+
     private function store(GitUser $git_user, ?string $registration_number, ?string $university_email) {
         $user = new User();
         $user->username = $git_user->username;
@@ -59,7 +83,7 @@ class UserController extends ApiController {
         $user->avatar_url = $git_user->avatar_url;
         $user->registration_number = $registration_number;
         $user->university_email = $university_email;
-        $user->type = isset($registration_number) ? 'STUDENT' : 'TEACHER';
+        $user->type = isset($registration_number) ? User::TYPE_STUDENT : User::TYPE_TEACHER;
 
         $user->save();
 
