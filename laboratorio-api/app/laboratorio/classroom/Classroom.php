@@ -4,6 +4,7 @@ namespace App\laboratorio\classroom;
 
 use App\laboratorio\RemoteRepositoryResolver;
 use App\laboratorio\util\http\ErrorResponse;
+use App\User;
 
 class Classroom {
     public $name;
@@ -43,9 +44,13 @@ class Classroom {
     public static function list(string $code): array {
         $groups = RemoteRepositoryResolver::resolve()->getGroups($code);
         $classrooms = array_map(function($group) use ($code) {
-            $details = self::getGroupDetails($group->id, $code);
-
-            return new self($group->name, $group->description, null, $group->id, $details->avatar_url);
+            return new self(
+                $group->name,
+                $group->description,
+                null,
+                $group->id,
+                null
+            );
         }, $groups->data);
 
         return $classrooms;
@@ -93,9 +98,9 @@ class Classroom {
 
     private static function getGroupMembers($group_id, string $code): array {
         $group_members = RemoteRepositoryResolver::resolve()->getGroupMembers($code, $group_id);
-        $members = array_map(function($member) {
-            return $member->name;
-        }, $group_members->data);
+        $members = array_filter(array_map(function($member) {
+            return User::where('username', $member->username)->first();
+        }, $group_members->data));
 
         return $members;
     }
