@@ -13,6 +13,7 @@
 
 Route::post('/user/register', 'UserController@register');
 Route::post('/user/auth', 'UserController@authenticate');
+Route::get('/users', 'UserController@list');
 
 Route::get('/classroom', 'ClassroomController@list');
 Route::post('/classroom', 'ClassroomController@create');
