@@ -18,7 +18,7 @@ class GitLab {
             'client_secret' => self::getClientSecret(),
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => 'http://localhost:8080/authenticate'
+            'redirect_uri' => self::getRedirectUri(),
         ];
         $response = $this->makeRequest(self::GITLAB_URI, $resource = 'oauth/token', $query_parameters, 'POST');
 
@@ -153,6 +153,10 @@ class GitLab {
 
     public static function getClientSecret() {
         return getenv("GITLAB_CLIENT_SECRET");
+    }
+
+    private static function getRedirectUri() {
+        return getenv("GITLAB_REDIRECT_URI");
     }
 
     private function makeRequestWithCode(string $uri, string $resource, array $query_parameters, string $method = 'POST', string $code): Response {
