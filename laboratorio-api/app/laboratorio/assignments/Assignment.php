@@ -43,7 +43,7 @@ class Assignment {
         $this->students = $students;
     }
 
-    public static function create(string $code, string $name, ?string $description, string $classroom_external_id, string $import_from) {
+    public static function create(string $code, string $name, ?string $description, string $classroom_external_id, ?string $import_from) {
         $response = RemoteRepositoryResolver::resolve()->createGroup(
             $code,
             $name,
