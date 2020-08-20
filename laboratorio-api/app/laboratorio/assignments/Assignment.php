@@ -214,14 +214,14 @@ class Assignment {
         );
     }
 
-    public static function list(string $classroom_external_id, string $code) {
+    public static function list(string $classroom_external_id, ?string $filter_by, string $code) {
         $response = RemoteRepositoryResolver::resolve()->getSubgroups($code, $classroom_external_id);
 
         if($response instanceof ErrorResponse) {
             throw new AssignmentException($response->data['error_message']);
         }
 
-        return array_map(function($subgroup) {
+        $assignments = array_map(function($subgroup) {
             return new self(
                 $name = $subgroup->name,
                 $description = self::getDescription($subgroup->description),
@@ -233,6 +233,14 @@ class Assignment {
                 $status = self::getStatus($due_date)
             );
         }, $response->data);
+
+        if(!is_null($filter_by)){
+           $assignments = array_filter($assignments, function(Assignment $assignment) use ($filter_by){
+               return $assignment->status == $filter_by;
+           });
+        }
+
+        return $assignments;
     }
 
 }
