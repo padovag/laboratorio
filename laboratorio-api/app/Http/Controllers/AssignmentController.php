@@ -16,7 +16,8 @@ class AssignmentController extends ApiController {
             'code' => 'required',
             'name' => 'required',
             'classroom_external_id' => 'required',
-            'import_from' => 'regex:' . self::IMPORT_FROM_PATTERN
+            'import_from' => 'regex:' . self::IMPORT_FROM_PATTERN,
+            'due_date' => 'required|date',
         ]);
 
         if ($validator->fails()) {
@@ -29,7 +30,8 @@ class AssignmentController extends ApiController {
                 $request['name'],
                 $request['description'],
                 $request['classroom_external_id'],
-                $request['import_from']
+                $request['import_from'],
+                $request['due_date']
             );
             return $this->sendSuccessResponse((array) $assigment);
         } catch(AssignmentException $exception) {
