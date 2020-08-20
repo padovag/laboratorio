@@ -37,7 +37,8 @@ class AssignmentController extends ApiController {
                 $request['description'],
                 $request['classroom_external_id'],
                 $request['import_from'],
-                $request['due_date']
+                $request['due_date'],
+                $request['visibility']
             );
             return $this->sendSuccessResponse((array) $assigment);
         } catch(AssignmentException $exception) {

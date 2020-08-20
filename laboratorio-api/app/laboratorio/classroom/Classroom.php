@@ -12,23 +12,25 @@ class Classroom {
     public $avatar;
     public $members;
     public $external_id;
+    public $visibility;
 
-    public function __construct(string $name, string $description, ?array $members, string $external_id, ?string $avatar = null) {
+    public function __construct(string $name, string $description, ?array $members, string $external_id, string $visibility, ?string $avatar = null) {
         $this->name = $name;
         $this->description = $description;
         $this->avatar = $avatar;
         $this->members = $members;
         $this->external_id = $external_id;
+        $this->visibility = $visibility ?? 'private';
     }
 
-    public static function create(string $code, string $name, string $description, array $members) {
-        $group_id = self::createGroup($code, $name, $description);
+    public static function create(string $code, string $name, string $description, array $members, ?string $visibility) {
+        $group_id = self::createGroup($code, $name, $description, $visibility);
 
         if(!empty($members)){
             $members_added = self::addMembersToGroup($members, $group_id, $code);
         }
 
-        return new self($name, $description, $members_added, $group_id);
+        return new self($name, $description, $members_added, $group_id, $visibility);
     }
 
     public static function addMembers(string $code, string $external_id, array $members): array {
@@ -49,7 +51,7 @@ class Classroom {
                 $group->description,
                 null,
                 $group->id,
-                null
+                $group->visibility
             );
         }, $groups->data);
 
@@ -60,11 +62,11 @@ class Classroom {
         $members = self::getGroupMembers($external_id, $code);
         $group_details = self::getGroupDetails($external_id, $code);
 
-        return new self($group_details->name, $group_details->description, $members, $group_details->id, $group_details->avatar_url);
+        return new self($group_details->name, $group_details->description, $members, $group_details->id, $group_details->visibility, $group_details->avatar_url);
     }
 
-    private static function createGroup(string $code, string $name, string $description): string {
-        $response = RemoteRepositoryResolver::resolve()->createGroup($code, $name, $description);
+    private static function createGroup(string $code, string $name, string $description, ?string $visibility): string {
+        $response = RemoteRepositoryResolver::resolve()->createGroup($code, $name, $description, $visibility ?? 'private');
         if($response instanceof ErrorResponse) {
             throw new ClassroomException($response->data['error_message']);
         }

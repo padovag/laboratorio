@@ -67,12 +67,13 @@ class GitLab {
         return $response;
     }
 
-    public function createGroup(string $code, string $name, string $description, ?string $parent_id = null): Response {
+    public function createGroup(string $code, string $name, string $description, string $visibility, ?string $parent_id = null): Response {
         $query_parameters = [
             'name' => $name,
             'path' => $name . '-group',
             'description' => $description,
             'parent_id' => $parent_id,
+            'visibility' => $visibility,
         ];
         $response = $this->makeRequestWithCode(self::GITLAB_API_URI, $resource = 'groups', $query_parameters, 'POST', $code);
 

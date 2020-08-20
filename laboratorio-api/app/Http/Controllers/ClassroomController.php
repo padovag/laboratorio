@@ -20,7 +20,8 @@ class ClassroomController extends ApiController {
                 $request['code'],
                 $request['name'],
                 $request['description'],
-                explode(",", trim($request['members']))
+                explode(",", trim($request['members'])),
+                $request['visibility']
             );
 
             return $this->sendSuccessResponse((array) $classroom);
