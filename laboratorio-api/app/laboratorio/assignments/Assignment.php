@@ -19,6 +19,7 @@ class Assignment {
     public $students;
     public $due_date;
     public $status;
+    public $visibility;
 
     /**
      * Assignment constructor.
@@ -30,6 +31,7 @@ class Assignment {
      * @param string|null $parent_id
      * @param string $due_date
      * @param string $status
+     * @param string|null $visibility
      * @param AssignmentStudent[] $students
      */
     public function __construct(
@@ -41,6 +43,7 @@ class Assignment {
         ?string $parent_id,
         string $due_date,
         string $status,
+        ?string $visibility,
         array $students = null
     ) {
         $this->name = $name;
@@ -52,13 +55,23 @@ class Assignment {
         $this->students = $students;
         $this->due_date = $due_date;
         $this->status = $status;
+        $this->visibility = $visibility ?? 'private';
     }
 
-    public static function create(string $code, string $name, ?string $description, string $classroom_external_id, ?string $import_from, string $due_date) {
+    public static function create(
+        string $code,
+        string $name,
+        ?string $description,
+        string $classroom_external_id,
+        ?string $import_from,
+        string $due_date,
+        ?string $visibility
+    ) {
         $response = RemoteRepositoryResolver::resolve()->createGroup(
             $code,
             $name,
             self::buildDescription($description, $import_from, $due_date),
+            $visibility ?? 'private',
             $classroom_external_id
         );
 
@@ -74,7 +87,8 @@ class Assignment {
             $import_from            = self::getImportUrlFromDescription($response->data->description),
             $parent_id              = $response->data->parent_id,
             $due_date               = self::getDueDateFromDescription($response->data->description),
-            $status                 = self::getStatus($due_date)
+            $status                 = self::getStatus($due_date),
+            $visibility
         );
     }
 
@@ -94,7 +108,8 @@ class Assignment {
             $import_from            = self::getImportUrlFromDescription($response->data->description),
             $parent_id              = $response->data->parent_id,
             $due_date               = self::getDueDateFromDescription($response->data->description),
-            $status                 = self::getStatus($due_date)
+            $status                 = self::getStatus($due_date),
+            $visibility             = $response->data->visibility
         );
     }
 
@@ -128,7 +143,8 @@ class Assignment {
             $import_from            = $base_assignments_information->import_from,
             $parent_id              = $response->data->namespace->id,
             $due_date               = $base_assignments_information->due_date,
-            $status                 = $base_assignments_information->status
+            $status                 = $base_assignments_information->status,
+            $visibility             = $base_assignments_information->visibility
         );
     }
 
@@ -210,6 +226,7 @@ class Assignment {
             $parent_id = $response->data->parent_id,
             $due_date = self::getDueDateFromDescription($response->data->description),
             $status = self::getStatus($due_date),
+            $visibility = $response->data->visibility,
             $students
         );
     }
@@ -230,7 +247,8 @@ class Assignment {
                 $import_from = self::getImportUrlFromDescription($subgroup->description),
                 $parent_id = $subgroup->parent_id,
                 $due_date = self::getDueDateFromDescription($subgroup->description),
-                $status = self::getStatus($due_date)
+                $status = self::getStatus($due_date),
+                $visibility = $subgroup->visibility
             );
         }, $response->data);
 
