@@ -24,6 +24,12 @@ class AssignmentController extends ApiController {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
         }
 
+        $due_date = new \DateTime($request['due_date']);
+        $now = new \DateTime();
+        if($due_date < $now) {
+            return $this->sendFailedResponse("Validation error", $status = 400, ['You cannot add a past date as due date']);
+        }
+
         try {
             $assigment = Assignment::create(
                 $request['code'],
