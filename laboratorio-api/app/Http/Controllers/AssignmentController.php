@@ -88,13 +88,16 @@ class AssignmentController extends ApiController {
     }
 
     public function list(Request $request) {
-        $validator = Validator::make($request->all(), ['code' => 'required']);
+        $validator = Validator::make($request->all(), [
+            'code' => 'required',
+            'filter_by' => Rule::in([Assignment::CLOSED_STATUS, Assignment::OPENED_STATUS]),
+        ]);
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
         }
 
         try {
-            $assignments = Assignment::list($request['id'], $request['code']);
+            $assignments = Assignment::list($request['id'], $request['filter_by'], $request['code']);
 
             return $this->sendSuccessResponse((array) $assignments);
         } catch(AssignmentException $exception) {
