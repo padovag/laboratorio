@@ -7,6 +7,9 @@ use App\laboratorio\RemoteRepositoryResolver;
 use App\laboratorio\util\http\ErrorResponse;
 
 class Assignment {
+    public const CLOSED_STATUS = 'CLOSED';
+    public const OPENED_STATUS = 'OPENED';
+
     public $name;
     public $description;
     public $classroom_external_id;
@@ -14,6 +17,8 @@ class Assignment {
     public $import_from;
     public $parent_id;
     public $students;
+    public $due_date;
+    public $status;
 
     /**
      * Assignment constructor.
@@ -23,6 +28,8 @@ class Assignment {
      * @param string|null $classroom_external_id
      * @param string|null $import_from
      * @param string|null $parent_id
+     * @param string $due_date
+     * @param string $status
      * @param AssignmentStudent[] $students
      */
     public function __construct(
@@ -32,6 +39,8 @@ class Assignment {
         ?string $classroom_external_id,
         ?string $import_from,
         ?string $parent_id,
+        string $due_date,
+        string $status,
         array $students = null
     ) {
         $this->name = $name;
@@ -41,13 +50,15 @@ class Assignment {
         $this->import_from = $import_from;
         $this->parent_id = $parent_id;
         $this->students = $students;
+        $this->due_date = $due_date;
+        $this->status = $status;
     }
 
-    public static function create(string $code, string $name, ?string $description, string $classroom_external_id, ?string $import_from) {
+    public static function create(string $code, string $name, ?string $description, string $classroom_external_id, ?string $import_from, string $due_date) {
         $response = RemoteRepositoryResolver::resolve()->createGroup(
             $code,
             $name,
-            self::buildDescription($description, $import_from),
+            self::buildDescription($description, $import_from, $due_date),
             $classroom_external_id
         );
 
@@ -61,7 +72,9 @@ class Assignment {
             $assignment_external_id = $response->data->id,
             $classroom_external_id  = $response->data->parent_id,
             $import_from            = self::getImportUrlFromDescription($response->data->description),
-            $parent_id              = $response->data->parent_id
+            $parent_id              = $response->data->parent_id,
+            $due_date               = self::getDueDateFromDescription($response->data->description),
+            $status                 = self::getStatus($due_date)
         );
     }
 
@@ -79,7 +92,9 @@ class Assignment {
             $assignment_external_id = $response->data->id,
             $classroom_external_id  = $response->data->parent_id,
             $import_from            = self::getImportUrlFromDescription($response->data->description),
-            $parent_id              = $response->data->parent_id
+            $parent_id              = $response->data->parent_id,
+            $due_date               = self::getDueDateFromDescription($response->data->description),
+            $status                 = self::getStatus($due_date)
         );
     }
 
@@ -107,11 +122,13 @@ class Assignment {
 
         return new self(
             $name                   = $response->data->name,
-            $description            = null,
+            $description            = $base_assignments_information->description,
             $assignment_external_id = $response->data->id,
             $classroom_external_id  = null, // todo
             $import_from            = $base_assignments_information->import_from,
-            $parent_id              = $response->data->namespace->id
+            $parent_id              = $response->data->namespace->id,
+            $due_date               = $base_assignments_information->due_date,
+            $status                 = $base_assignments_information->status
         );
     }
 
@@ -126,8 +143,12 @@ class Assignment {
         return $assignment_students;
     }
 
-    private static function buildDescription(?string $description, string $import_from) {
-        return json_encode(['description' => $description, 'import_from' => $import_from]);
+    private static function buildDescription(?string $description, string $import_from, string $due_date) {
+        return json_encode(['description' => $description, 'import_from' => $import_from, 'due_date' => $due_date]);
+    }
+
+    private static function getDueDateFromDescription(string $description): ?string {
+        return self::tearDownDescription($description)->due_date;
     }
 
     private static function getImportUrlFromDescription(string $description): ?string {
@@ -140,6 +161,17 @@ class Assignment {
 
     private static function tearDownDescription(string $description): \stdClass {
         return json_decode($description);
+    }
+
+    private static function getStatus(string $due_date) {
+        $due_date = new \DateTime($due_date);
+        $now = new \DateTime();
+
+        if($due_date < $now) {
+            return self::CLOSED_STATUS;
+        }
+
+        return self::OPENED_STATUS;
     }
 
     public static function getAcceptedAssignmentsName(GitUser $user, Assignment $assignment): string {
@@ -176,6 +208,8 @@ class Assignment {
             $classroom_external_id = $response->data->parent_id,
             $import_from = self::getImportUrlFromDescription($response->data->description),
             $parent_id = $response->data->parent_id,
+            $due_date = self::getDueDateFromDescription($response->data->description),
+            $status = self::getStatus($due_date),
             $students
         );
     }
@@ -194,7 +228,9 @@ class Assignment {
                 $assignment_external_id = $subgroup->id,
                 $classroom_external_id = $subgroup->parent_id,
                 $import_from = self::getImportUrlFromDescription($subgroup->description),
-                $parent_id = $subgroup->parent_id
+                $parent_id = $subgroup->parent_id,
+                $due_date = self::getDueDateFromDescription($subgroup->description),
+                $status = self::getStatus($due_date)
             );
         }, $response->data);
     }
