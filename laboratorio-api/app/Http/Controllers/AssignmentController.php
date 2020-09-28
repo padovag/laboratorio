@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\laboratorio\assignments\Assignment;
 use App\laboratorio\assignments\AssignmentException;
+use App\laboratorio\assignments\ClosedAssignment;
+use App\laboratorio\classroom\Classroom;
+use App\laboratorio\gitlab\GitUser;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -107,6 +111,55 @@ class AssignmentController extends ApiController {
             $assignments = Assignment::list($request['id'], $request['filter_by'], $request['code']);
 
             return $this->sendSuccessResponse((array) $assignments);
+        } catch(AssignmentException $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
+
+    public function close(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'code' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $assignment = Assignment::getStudents($request['code'], $request['id']);
+            $students_that_accepted = array_map(function($student) {
+                return $student->student_user;
+            }, $assignment->students);
+            $students_from_class = array_map(function($student) {
+                return $student->name;
+            }, Classroom::get($request['code'], $assignment->classroom_external_id)->members);
+
+            $students_that_didnt_accept = array_filter($students_from_class, function($student) use ($students_that_accepted) {
+                return !in_array($student, $students_that_accepted);
+            });
+
+            $students_that_accepted_grades = array_map(function($student) {
+                return ['student' => $student, 'grade' => null];
+            }, $students_that_accepted);
+
+            $students_with_zero = array_map(function($student) {
+                return ['student' => $student, 'grade' => 0];
+            }, $students_that_didnt_accept);
+
+            $students_grades = array_merge($students_that_accepted_grades, $students_with_zero);
+
+            $closed_assignments = [];
+            foreach($students_grades as $student_grade) {
+                $closed_assignment = new ClosedAssignment();
+                $closed_assignment->external_id = $assignment->assignment_external_id;
+                $closed_assignment->user_id = User::where('name', $student_grade['student'])->first()->id;
+                $closed_assignment->classroom_id = $assignment->classroom_external_id;
+                $closed_assignment->grade = $student_grade['grade'];
+                $closed_assignment->save();
+                $closed_assignments[] =$closed_assignment;
+            }
+
+            return $this->sendSuccessResponse((array) $closed_assignments);
         } catch(AssignmentException $exception) {
             return $this->sendFailedResponse($exception->getMessage());
         }

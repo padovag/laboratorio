@@ -28,3 +28,4 @@ Route::post('/assignment', 'AssignmentController@create');
 Route::get('/assignment/{id}', 'AssignmentController@get');
 Route::post('/assignment/{id}/accept', 'AssignmentController@accept');
 Route::get('/assignment/{id}/students', 'AssignmentController@getStudents');
+Route::get('/assignment/{id}/close', 'AssignmentController@close');
