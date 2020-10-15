@@ -164,4 +164,23 @@ class AssignmentController extends ApiController {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
+
+    public function grade(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'grades' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        foreach($request['grades'] as $student_grade) {
+            $user = User::where('name', $student_grade['student_name'])->first();
+            $closed_assignment = ClosedAssignment::where(['external_id' => $request['id'], 'user_id' => $user->id])->first();
+            $closed_assignment->grade = $student_grade['grade'];
+            $closed_assignment->save();
+        }
+
+        return $this->sendSuccessResponse(['The assignments have been graded']);
+    }
 }
