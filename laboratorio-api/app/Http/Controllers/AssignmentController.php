@@ -183,4 +183,17 @@ class AssignmentController extends ApiController {
 
         return $this->sendSuccessResponse(['The assignments have been graded']);
     }
+
+    public function getGrades(Request $request) {
+        $closed_assignments = ClosedAssignment::where('external_id', $request['id'])->get();
+
+        $students_grades = [];
+        foreach($closed_assignments as $student_closed_assignment) {
+            $user = User::find($student_closed_assignment->user_id);
+            $students_grades[] = ['student' => $user->name, 'grade' => $student_closed_assignment->grade];
+        }
+
+        return $this->sendSuccessResponse($students_grades);
+
+    }
 }
