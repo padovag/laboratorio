@@ -37,7 +37,7 @@ class AssignmentController extends ApiController {
         try {
             $assigment = Assignment::create(
                 $request['code'],
-                $request['name'],
+                str_replace(' ', '', $request['name']),
                 $request['description'],
                 $request['classroom_external_id'],
                 $request['import_from'],

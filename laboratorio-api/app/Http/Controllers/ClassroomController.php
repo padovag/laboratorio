@@ -22,7 +22,7 @@ class ClassroomController extends ApiController {
         try {
             $classroom = Classroom::create(
                 $request['code'],
-                $request['name'],
+                str_replace(' ', '', $request['name']),
                 $request['description'],
                 explode(",", trim($request['members'])),
                 $request['background_color'],
