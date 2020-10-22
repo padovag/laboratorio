@@ -20,7 +20,7 @@ class AssignmentController extends ApiController {
             'code' => 'required',
             'name' => 'required',
             'classroom_external_id' => 'required',
-            'import_from' => 'regex:' . self::IMPORT_FROM_PATTERN,
+            'import_from' => 'nullable|regex:' . self::IMPORT_FROM_PATTERN,
             'due_date' => 'required|date',
         ]);
 

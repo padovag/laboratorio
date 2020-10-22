@@ -159,7 +159,7 @@ class Assignment {
         return $assignment_students;
     }
 
-    private static function buildDescription(?string $description, string $import_from, string $due_date) {
+    private static function buildDescription(?string $description, ?string $import_from, string $due_date) {
         return json_encode(['description' => $description, 'import_from' => $import_from, 'due_date' => $due_date]);
     }
 
