@@ -148,6 +148,16 @@ class Assignment {
         );
     }
 
+    public static function delete(string $code, string $assignment_external_id) {
+        $response = RemoteRepositoryResolver::resolve()->deleteGroup($code, $assignment_external_id);
+
+        if($response instanceof ErrorResponse) {
+            throw new AssignmentException($response->data['error_message']);
+        }
+
+        return $assignment_external_id;
+    }
+
     public static function getStudents(string $code, string $assignment_external_id, string $assignment_status = null) {
         $assignment_students = self::getAllStudents($code, $assignment_external_id);
         if(isset($assignment_status)) {

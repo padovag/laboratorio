@@ -26,6 +26,7 @@ Route::get('/classroom/{id}', 'ClassroomController@get');
 Route::get('/classroom/{id}/assignments', 'AssignmentController@list');
 Route::post('/assignment', 'AssignmentController@create');
 Route::get('/assignment/{id}', 'AssignmentController@get');
+Route::delete('/assignment/{id}', 'AssignmentController@delete');
 Route::post('/assignment/{id}/accept', 'AssignmentController@accept');
 Route::get('/assignment/{id}/students', 'AssignmentController@getStudents');
 Route::get('/assignment/{id}/close', 'AssignmentController@close');
