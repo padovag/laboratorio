@@ -22,6 +22,7 @@ Route::get('/classroom', 'ClassroomController@list');
 Route::post('/classroom', 'ClassroomController@create');
 Route::post('/classroom/members', 'ClassroomController@add');
 Route::get('/classroom/{id}', 'ClassroomController@get');
+Route::delete('/classroom/{id}', 'ClassroomController@delete');
 
 Route::get('/classroom/{id}/assignments', 'AssignmentController@list');
 Route::post('/assignment', 'AssignmentController@create');

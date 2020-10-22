@@ -35,6 +35,23 @@ class ClassroomController extends ApiController {
         }
     }
 
+    public function delete(Request $request) {
+        $validator = Validator::make($request->all(), ['code' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $deleted_classroom_id = Classroom::delete($request['code'], $request['id']);
+
+            return $this->sendSuccessResponse(['deleted_classroom' => $deleted_classroom_id]);
+        } catch(\Exception $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+
+    }
+
     public function add(Request $request) {
         $validator = Validator::make($request->all(), [
             'code' => 'required',

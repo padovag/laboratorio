@@ -84,6 +84,16 @@ class Classroom {
         );
     }
 
+    public static function delete(string $code, string $classroom_external_id) {
+        $response = RemoteRepositoryResolver::resolve()->deleteGroup($code, $classroom_external_id);
+
+        if($response instanceof ErrorResponse) {
+            throw new ClassroomException($response->data['error_message']);
+        }
+
+        return $classroom_external_id;
+    }
+
     private static function createGroup(string $code, string $name, string $description, ?string $visibility): string {
         $response = RemoteRepositoryResolver::resolve()->createGroup($code, $name, $description, $visibility ?? 'private');
         if($response instanceof ErrorResponse) {
