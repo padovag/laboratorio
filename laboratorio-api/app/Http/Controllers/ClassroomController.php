@@ -9,7 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ClassroomController extends ApiController {
     public function create(Request $request) {
-        $validator = Validator::make($request->all(), ['name' => 'required', 'code' => 'required']);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'code' => 'required',
+            'background_color' => 'required'
+        ]);
 
         if ($validator->fails()) {
             return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
@@ -21,11 +25,12 @@ class ClassroomController extends ApiController {
                 $request['name'],
                 $request['description'],
                 explode(",", trim($request['members'])),
+                $request['background_color'],
                 $request['visibility']
             );
 
             return $this->sendSuccessResponse((array) $classroom);
-        } catch(ClassroomException $exception) {
+        } catch(\Exception $exception) {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
@@ -49,7 +54,7 @@ class ClassroomController extends ApiController {
             );
 
             return $this->sendSuccessResponse($members);
-        } catch(ClassroomException $exception) {
+        } catch(\Exception $exception) {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
@@ -67,7 +72,7 @@ class ClassroomController extends ApiController {
             $classrooms = Classroom::list($request['code']);
 
             return $this->sendSuccessResponse($classrooms);
-        } catch(ClassroomException $exception) {
+        } catch(\Exception $exception) {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
@@ -85,7 +90,7 @@ class ClassroomController extends ApiController {
             $classroom = Classroom::get($request['code'], $request['id']);
 
             return $this->sendSuccessResponse((array)$classroom);
-        } catch(ClassroomException $exception) {
+        } catch(\Exception $exception) {
             return $this->sendFailedResponse($exception->getMessage());
         }
     }
