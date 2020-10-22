@@ -13,24 +13,34 @@ class Classroom {
     public $members;
     public $external_id;
     public $visibility;
+    public $background_color;
 
-    public function __construct(string $name, string $description, ?array $members, string $external_id, string $visibility, ?string $avatar = null) {
+    public function __construct(
+        string $name,
+        string $description,
+        ?array $members,
+        string $external_id,
+        string $visibility,
+        string $background_color,
+        ?string $avatar = null
+    ) {
         $this->name = $name;
         $this->description = $description;
         $this->avatar = $avatar;
         $this->members = $members;
         $this->external_id = $external_id;
         $this->visibility = $visibility ?? 'private';
+        $this->background_color = $background_color;
     }
 
-    public static function create(string $code, string $name, string $description, array $members, ?string $visibility) {
-        $group_id = self::createGroup($code, $name, $description, $visibility);
+    public static function create(string $code, string $name, string $description, array $members, string $background_color, ?string $visibility) {
+        $group_id = self::createGroup($code, $name, self::buildDescription($description, $background_color), $visibility);
 
         if(!empty($members)){
             $members_added = self::addMembersToGroup($members, $group_id, $code);
         }
 
-        return new self($name, $description, $members_added, $group_id, $visibility);
+        return new self($name, $description, $members_added, $group_id, $visibility, $background_color);
     }
 
     public static function addMembers(string $code, string $external_id, array $members): array {
@@ -48,10 +58,11 @@ class Classroom {
         $classrooms = array_map(function($group) use ($code) {
             return new self(
                 $group->name,
-                $group->description,
+                self::getDescriptionFromDescription($group->description),
                 null,
                 $group->id,
-                $group->visibility
+                $group->visibility,
+                self::getBackgroundColorFromDescription($group->description)
             );
         }, $groups->data);
 
@@ -62,7 +73,15 @@ class Classroom {
         $members = self::getGroupMembers($external_id, $code);
         $group_details = self::getGroupDetails($external_id, $code);
 
-        return new self($group_details->name, $group_details->description, $members, $group_details->id, $group_details->visibility, $group_details->avatar_url);
+        return new self(
+            $group_details->name,
+            self::getDescriptionFromDescription( $group_details->description),
+            $members,
+            $group_details->id,
+            $group_details->visibility,
+            self::getBackgroundColorFromDescription($group_details->description),
+            $group_details->avatar_url
+        );
     }
 
     private static function createGroup(string $code, string $name, string $description, ?string $visibility): string {
@@ -111,6 +130,22 @@ class Classroom {
         $details = RemoteRepositoryResolver::resolve()->getGroupDetails($code, $group_id);
 
         return $details->data;
+    }
+
+    private static function getDescriptionFromDescription(string $description): string {
+        return self::tearDownDescription($description)->description;
+    }
+
+    private static function getBackgroundColorFromDescription(string $description): string {
+        return self::tearDownDescription($description)->background_color;
+    }
+
+    private static function buildDescription(?string $description, string $background_color) {
+        return json_encode(['description' => $description, 'background_color' => $background_color]);
+    }
+
+    private static function tearDownDescription(string $description): \stdClass {
+        return json_decode($description);
     }
 
 }
