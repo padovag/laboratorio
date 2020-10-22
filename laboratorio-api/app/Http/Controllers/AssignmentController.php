@@ -82,6 +82,22 @@ class AssignmentController extends ApiController {
         }
     }
 
+    public function delete(Request $request) {
+        $validator = Validator::make($request->all(), ['code' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $deleted_assignment_id = Assignment::delete($request['code'], $request['id']);
+
+            return $this->sendSuccessResponse(['deleted_assignment' => $deleted_assignment_id]);
+        } catch(AssignmentException $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
+
     public function getStudents(Request $request) {
         $validator = Validator::make($request->all(), ['code' => 'required', 'assignment_status' => Rule::in(['done'])]);
 

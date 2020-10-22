@@ -124,6 +124,18 @@ class GitLab {
         return $response;
     }
 
+    public function deleteGroup(string $code, string $group_id) {
+        $response = $this->makeRequestWithCode(
+            self::GITLAB_API_URI,
+            $resource = "groups/{$group_id}",
+            [],
+            'DELETE',
+            $code
+        );
+
+        return $response;
+    }
+
     public function createProject(string $code, string $group_id, string $name, string $import_from) {
         $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
