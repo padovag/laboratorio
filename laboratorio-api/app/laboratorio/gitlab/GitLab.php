@@ -136,11 +136,16 @@ class GitLab {
         return $response;
     }
 
-    public function createProject(string $code, string $group_id, string $name, string $import_from) {
+    public function createProject(string $code, string $group_id, string $name, ?string $import_from) {
+        $query_parameters = ['namespace_id' => $group_id, 'name' => $name];
+        if(!is_null($import_from)) {
+            $query_parameters['import_url'] = $import_from;
+        }
+
         $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "projects",
-            ['namespace_id' => $group_id, 'name' => $name, 'import_url' => $import_from],
+            $query_parameters,
             'POST',
             $code
         );
