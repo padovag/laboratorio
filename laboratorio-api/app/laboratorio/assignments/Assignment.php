@@ -20,6 +20,7 @@ class Assignment {
     public $due_date;
     public $status;
     public $visibility;
+    public $remote_url;
 
     /**
      * Assignment constructor.
@@ -44,6 +45,7 @@ class Assignment {
         string $due_date,
         string $status,
         ?string $visibility,
+        string $remote_url,
         array $students = null
     ) {
         $this->name = $name;
@@ -56,6 +58,7 @@ class Assignment {
         $this->due_date = $due_date;
         $this->status = $status;
         $this->visibility = $visibility ?? 'private';
+        $this->remote_url = $remote_url;
     }
 
     public static function create(
@@ -88,7 +91,8 @@ class Assignment {
             $parent_id              = $response->data->parent_id,
             $due_date               = self::getDueDateFromDescription($response->data->description),
             $status                 = self::getStatus($due_date),
-            $visibility
+            $visibility,
+            $remote_url             = $response->data->web_url
         );
     }
 
@@ -109,7 +113,8 @@ class Assignment {
             $parent_id              = $response->data->parent_id,
             $due_date               = self::getDueDateFromDescription($response->data->description),
             $status                 = self::getStatus($due_date),
-            $visibility             = $response->data->visibility
+            $visibility             = $response->data->visibility,
+            $remote_url             = $response->data->web_url
         );
     }
 
@@ -144,7 +149,8 @@ class Assignment {
             $parent_id              = $response->data->namespace->id,
             $due_date               = $base_assignments_information->due_date,
             $status                 = $base_assignments_information->status,
-            $visibility             = $base_assignments_information->visibility
+            $visibility             = $base_assignments_information->visibility,
+            $remote_url             = $response->data->web_url
         );
     }
 
@@ -237,6 +243,7 @@ class Assignment {
             $due_date = self::getDueDateFromDescription($response->data->description),
             $status = self::getStatus($due_date),
             $visibility = $response->data->visibility,
+            $remote_url = $response->data->web_url,
             $students
         );
     }
@@ -258,7 +265,9 @@ class Assignment {
                 $parent_id = $subgroup->parent_id,
                 $due_date = self::getDueDateFromDescription($subgroup->description),
                 $status = self::getStatus($due_date),
-                $visibility = $subgroup->visibility
+                $visibility = $subgroup->visibility,
+                $remote_url = $subgroup->web_url
+
             );
         }, $response->data);
 
