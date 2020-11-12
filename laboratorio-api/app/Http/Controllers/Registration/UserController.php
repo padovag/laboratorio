@@ -109,6 +109,7 @@ class UserController extends ApiController {
         $user->registration_number = $registration_number;
         $user->university_email = $university_email;
         $user->type = isset($registration_number) ? User::TYPE_STUDENT : User::TYPE_TEACHER;
+        $user->email = $git_user->email;
 
         $user->save();
 
