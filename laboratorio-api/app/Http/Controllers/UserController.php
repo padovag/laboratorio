@@ -21,7 +21,7 @@ class UserController extends ApiController {
             }
 
             $git_user = $this->getUserFromCode($request['code']);
-            $user = $this->store($git_user, $request['registration_number'], $request['university_email']);
+            $user = $this->store($git_user, $request['registration_number'], $request['university_email'], $request['email']);
 
             return $this->sendSuccessResponse((array) $user->getAttributes());
         } catch(TokenException $exception) {
@@ -101,7 +101,7 @@ class UserController extends ApiController {
         }
     }
 
-    private function store(GitUser $git_user, ?string $registration_number, ?string $university_email) {
+    private function store(GitUser $git_user, ?string $registration_number, ?string $university_email, ?string $email) {
         $user = new User();
         $user->username = $git_user->username;
         $user->name = $git_user->name;
@@ -109,7 +109,7 @@ class UserController extends ApiController {
         $user->registration_number = $registration_number;
         $user->university_email = $university_email;
         $user->type = isset($registration_number) ? User::TYPE_STUDENT : User::TYPE_TEACHER;
-        $user->email = $git_user->email;
+        $user->email = $email;
 
         $user->save();
 
