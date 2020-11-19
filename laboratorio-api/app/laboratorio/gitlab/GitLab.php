@@ -136,6 +136,18 @@ class GitLab {
         return $response;
     }
 
+    public function deleteProject(string $code, string $project_id) {
+        $response = $this->makeRequestWithCode(
+            self::GITLAB_API_URI,
+            $resource = "projects/{$project_id}",
+            [],
+            'DELETE',
+            $code
+        );
+
+        return $response;
+    }
+
     public function createProject(string $code, string $group_id, string $name, ?string $import_from) {
         $query_parameters = ['namespace_id' => $group_id, 'name' => $name];
         if(!is_null($import_from)) {

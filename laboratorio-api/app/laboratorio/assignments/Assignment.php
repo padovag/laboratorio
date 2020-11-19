@@ -168,7 +168,10 @@ class Assignment {
         $response = RemoteRepositoryResolver::resolve()->deleteGroup($code, $assignment_external_id);
 
         if($response instanceof ErrorResponse) {
-            throw new AssignmentException($response->data['error_message']);
+            $response = RemoteRepositoryResolver::resolve()->deleteProject($code, $assignment_external_id);
+            if($response instanceof ErrorResponse) {
+                throw new AssignmentException($response->data['error_message']);
+            }
         }
 
         return $assignment_external_id;
