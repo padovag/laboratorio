@@ -154,6 +154,16 @@ class Assignment {
         );
     }
 
+    public static function isAccepted(string $code, string $assignment_external_id): bool {
+        $response = RemoteRepositoryResolver::resolve()->getProjectsByUser($code, $assignment_external_id);
+
+        if($response instanceof ErrorResponse) {
+            throw new AssignmentException($response->data['error_message']);
+        }
+
+        return $is_accepted = !empty($response->data);
+    }
+
     public static function delete(string $code, string $assignment_external_id) {
         $response = RemoteRepositoryResolver::resolve()->deleteGroup($code, $assignment_external_id);
 

@@ -165,6 +165,18 @@ class GitLab {
         return $response;
     }
 
+    public function getProjectsByUser(string $code, string $group_id) {
+        $response = $this->makeRequestWithCode(
+            self::GITLAB_API_URI,
+            $resource = "groups/{$group_id}/projects" ,
+            ['owned' => true],
+            'GET',
+            $code
+        );
+
+        return $response;
+    }
+
     public static function getClientId() {
         return getenv("GITLAB_CLIENT_ID");
     }

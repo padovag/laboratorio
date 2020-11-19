@@ -82,6 +82,20 @@ class AssignmentController extends ApiController {
         }
     }
 
+    public function isAccepted(Request $request) {
+        $validator = Validator::make($request->all(), ['code' => 'required']);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            return $this->sendSuccessResponse(['is_accepted_by_user?' => Assignment::isAccepted($request['code'], $request['id'])]);
+        } catch(AssignmentException $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
+
     public function delete(Request $request) {
         $validator = Validator::make($request->all(), ['code' => 'required']);
 
