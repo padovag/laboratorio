@@ -101,6 +101,50 @@ class UserController extends ApiController {
         }
     }
 
+    public function update(Request $request) {
+        try {
+            $validator = Validator::make($request->all(), [
+                'code' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+            }
+
+            $git_user = $this->getUserFromCode($request['code']);
+            $user = User::where('username', $git_user->username)->first();
+            $user->name = $request['name'] ?? $user->name;
+            $user->username = $request['username'] ?? $user->username;
+            $user->registration_number = $request['registration_number'] ?? $user->registration_number;
+            $user->university_email = $request['university_email'] ?? $user->university_email;
+            $user->email = $request['email'] ?? $user->email;
+            $user->avatar_url = $request['avatar_url'] ?? $user->avatar_url;
+
+            return $this->sendSuccessResponse(['user' => $user]);
+        } catch(TokenException $exception) {
+            return $this->sendIncorrectTokenResponse($request['code']);
+        }
+    }
+
+    public function delete(Request $request) {
+        try {
+            $validator = Validator::make($request->all(), [
+                'code' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+            }
+
+            $git_user = $this->getUserFromCode($request['code']);
+            $user = User::where('username', $git_user->username)->first();
+            $deleted = $user->delete();
+            return $this->sendSuccessResponse((array) $deleted);
+        } catch(TokenException $exception) {
+            return $this->sendIncorrectTokenResponse($request['code']);
+        }
+    }
+
     private function store(GitUser $git_user, ?string $registration_number, ?string $university_email, ?string $email) {
         $user = new User();
         $user->username = $git_user->username;

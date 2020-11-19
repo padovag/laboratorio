@@ -14,9 +14,11 @@
 Route::post('/user/register', 'UserController@register');
 Route::post('/user/auth', 'UserController@authenticate');
 Route::get('/users', 'UserController@list');
-Route::post('/user/current', 'UserController@authenticate');
+Route::get('/user/current', 'UserController@authenticate');
 Route::get('/user/current/classrooms', 'ClassroomController@list');
 Route::get('/user', 'UserController@get');
+Route::put('/user/current', 'UserController@update');
+Route::delete('/user/current', 'UserController@delete');
 
 Route::get('/classroom', 'ClassroomController@list');
 Route::post('/classroom', 'ClassroomController@create');
