@@ -208,7 +208,12 @@ class Assignment {
         return json_decode($description);
     }
 
-    private static function getStatus(string $due_date) {
+    private static function getStatus(string $due_date, string $assignment_external_id = null) {
+        $closed_assignment = ClosedAssignment::where('external_id', $assignment_external_id)->get();
+        if ($closed_assignment) {
+            return self::CLOSED_STATUS;
+        }
+
         $due_date = new \DateTime($due_date);
         $now = new \DateTime();
 
