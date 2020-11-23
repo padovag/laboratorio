@@ -210,7 +210,7 @@ class Assignment {
 
     private static function getStatus(string $due_date, string $assignment_external_id = null) {
         $closed_assignment = ClosedAssignment::where('external_id', $assignment_external_id)->get();
-        if ($closed_assignment) {
+        if (!empty($closed_assignment->items)) {
             return self::CLOSED_STATUS;
         }
 
