@@ -112,7 +112,7 @@ class Assignment {
             $import_from            = self::getImportUrlFromDescription($response->data->description),
             $parent_id              = $response->data->parent_id,
             $due_date               = self::getDueDateFromDescription($response->data->description),
-            $status                 = self::getStatus($due_date),
+            $status                 = self::getStatus($due_date, $assignment_external_id),
             $visibility             = $response->data->visibility,
             $remote_url             = $response->data->web_url
         );
@@ -209,8 +209,8 @@ class Assignment {
     }
 
     private static function getStatus(string $due_date, string $assignment_external_id = null) {
-        $closed_assignment = ClosedAssignment::where('external_id', $assignment_external_id)->get();
-        if (!empty($closed_assignment->items)) {
+        $closed_assignment = ClosedAssignment::where('external_id', $assignment_external_id)->first();
+        if ($closed_assignment) {
             return self::CLOSED_STATUS;
         }
 
@@ -282,7 +282,7 @@ class Assignment {
                 $import_from = self::getImportUrlFromDescription($subgroup->description),
                 $parent_id = $subgroup->parent_id,
                 $due_date = self::getDueDateFromDescription($subgroup->description),
-                $status = self::getStatus($due_date),
+                $status = self::getStatus($due_date, $assignment_external_id),
                 $visibility = $subgroup->visibility,
                 $remote_url = $subgroup->web_url
 
