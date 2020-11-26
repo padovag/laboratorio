@@ -36,3 +36,5 @@ Route::get('/assignment/{id}/students', 'AssignmentController@getStudents');
 Route::get('/assignment/{id}/close', 'AssignmentController@close');
 Route::post('/assignment/{id}/grade', 'AssignmentController@grade');
 Route::get('/assignment/{id}/grades', 'AssignmentController@getGrades');
+
+Route::get('/readme', 'AssignmentController@getReadMe');

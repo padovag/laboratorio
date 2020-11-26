@@ -226,4 +226,18 @@ class AssignmentController extends ApiController {
         return $this->sendSuccessResponse($students_grades);
 
     }
+
+    public function getReadMe(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'repository_url' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        $readme = Assignment::getReadMe($request['repository_url']);
+
+        return $this->sendSuccessResponse((array) $readme);
+    }
 }

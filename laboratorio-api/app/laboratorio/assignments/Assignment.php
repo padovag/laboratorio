@@ -302,4 +302,14 @@ class Assignment {
         return $assignments;
     }
 
+    public static function getReadMe(string $repository_url) {
+        $response = RemoteRepositoryResolver::resolve()->getReadMe($repository_url);
+
+        if($response instanceof ErrorResponse) {
+            throw new AssignmentException($response->data['error_message']);
+        }
+
+        return $response->data;
+    }
+
 }

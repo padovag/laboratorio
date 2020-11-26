@@ -189,6 +189,10 @@ class GitLab {
         return $response;
     }
 
+    public function getReadMe(string $repository_url) {
+        return $this->makeRequest($repository_url, '/raw/master/README.md', [], 'GET');
+    }
+
     public static function getClientId() {
         return getenv("GITLAB_CLIENT_ID");
     }
@@ -222,7 +226,8 @@ class GitLab {
                 ]
             );
 
-            return new SuccessResponse(json_decode($response->getBody()->getContents()));
+            $contents = $response->getBody()->getContents();
+            return new SuccessResponse(json_decode($contents) ?? $contents);
         } catch(ClientException $exception) {
             return new ErrorResponse($exception->getMessage());
         }
