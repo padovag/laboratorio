@@ -5,6 +5,7 @@ namespace App\laboratorio\assignments;
 use App\laboratorio\gitlab\GitUser;
 use App\laboratorio\RemoteRepositoryResolver;
 use App\laboratorio\util\http\ErrorResponse;
+use App\User;
 
 class Assignment {
     public const CLOSED_STATUS = 'CLOSED';
@@ -237,7 +238,7 @@ class Assignment {
             throw new AssignmentException($response->data['error_message']);
         }
 
-        $students = array_map(function($project) use ($code) {
+        $students = array_map(function($project) use ($code, $assignment_external_id) {
             $parts = explode('-', $project->name);
             $student_user = $parts[0];
             $accepted_at = $project->created_at;
@@ -247,8 +248,11 @@ class Assignment {
             $commits = array_map(function($commits) {
                 return ["message" => $commits->message, "date" => $commits->committed_date];
             }, $response->data);
+            $user = User::where('name', $student_user)->first();
+            $closed_assignment = ClosedAssignment::getByStudent($assignment_external_id, $user->id);
+            $grade = !is_null($closed_assignment) ? $closed_assignment->grade : null;
 
-            return new AssignmentStudent($student_user, $accepted_at, $remote_url, $commits);
+            return new AssignmentStudent($student_user, $accepted_at, $remote_url, $commits, $grade);
         }, $response->data->projects);
 
         return new self(
