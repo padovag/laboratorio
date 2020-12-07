@@ -17,11 +17,11 @@ class Classroom {
 
     public function __construct(
         string $name,
-        string $description,
+        ?string $description,
         ?array $members,
         string $external_id,
         string $visibility,
-        string $background_color,
+        ?string $background_color,
         ?string $avatar = null
     ) {
         $this->name = $name;
@@ -55,7 +55,11 @@ class Classroom {
 
     public static function list(string $code): array {
         $groups = RemoteRepositoryResolver::resolve()->getGroups($code);
-        $classrooms = array_map(function($group) use ($code) {
+        $classrooms = array_filter(array_map(function($group) use ($code) {
+            if (!self::shouldList($group)) {
+                return false;
+            }
+            
             return new self(
                 $group->name,
                 self::getDescriptionFromDescription($group->description),
@@ -64,9 +68,13 @@ class Classroom {
                 $group->visibility,
                 self::getBackgroundColorFromDescription($group->description)
             );
-        }, $groups->data);
+        }, $groups->data));
 
         return $classrooms;
+    }
+
+    private static function shouldList($group): bool {
+        return !is_null(self::getDescriptionFromDescription($group->description)) && !is_null(self::getBackgroundColorFromDescription($group->description));
     }
 
     public static function get(string $code, string $external_id) {
@@ -142,19 +150,19 @@ class Classroom {
         return $details->data;
     }
 
-    private static function getDescriptionFromDescription(string $description): string {
-        return self::tearDownDescription($description)->description;
+    private static function getDescriptionFromDescription(string $description): ?string {
+        return is_null(self::tearDownDescription($description)) ? null : self::tearDownDescription($description)->description;
     }
 
-    private static function getBackgroundColorFromDescription(string $description): string {
-        return self::tearDownDescription($description)->background_color;
+    private static function getBackgroundColorFromDescription(string $description): ?string {
+        return is_null(self::tearDownDescription($description)) ? null : self::tearDownDescription($description)->background_color;
     }
 
     private static function buildDescription(?string $description, string $background_color) {
         return json_encode(['description' => $description, 'background_color' => $background_color]);
     }
 
-    private static function tearDownDescription(string $description): \stdClass {
+    private static function tearDownDescription(string $description): ?\stdClass {
         return json_decode($description);
     }
 
