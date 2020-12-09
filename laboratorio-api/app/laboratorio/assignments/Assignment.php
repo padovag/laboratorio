@@ -246,7 +246,7 @@ class Assignment {
 
             $response = RemoteRepositoryResolver::resolve()->getCommits($code, $project->id);
             $commits = array_map(function($commits) {
-                return ["message" => $commits->message, "date" => $commits->committed_date];
+                return ["message" => $commits->message, "date" => $commits->committed_date, 'commit_url' => $commits->web_url];
             }, $response->data);
             $user = User::where('name', $student_user)->first();
             $closed_assignment = ClosedAssignment::getByStudent($assignment_external_id, $user->id);
