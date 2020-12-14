@@ -88,7 +88,7 @@ class GitLab {
         return $response;
     }
 
-    public function addMemberToGroup(string $member_id, string $group_id, string $code, int $access_level = 30): Response {
+    public function addMemberToGroup(string $member_id, string $group_id, string $code, int $access_level = 50): Response {
         $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "groups/{$group_id}/members",

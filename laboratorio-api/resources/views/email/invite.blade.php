@@ -216,7 +216,7 @@
                                     <table border='0' cellpadding='0' cellspacing='0' role='presentation' style='border-collapse:separate;line-height:100%;width:200px;'>
                                         <tr>
                                             <td align='center' bgcolor='#955100' role='presentation' style='background-color:#955100;border:none;border-radius:4px;cursor:auto;padding:10px 25px;' valign='middle'>
-                                                <a href='https://http://localhost:8080/authenticate' style="background:#955100;color:#ffffff;font-family:'Droid Sans', 'Helvetica Neue', Arial, sans-serif;font-size:16px;font-weight:bold;line-height:30px;margin:0;text-decoration:none;text-transform:none;" target='_blank'>
+                                                <a href='http://localhost:8080/authenticate' style="background:#955100;color:#ffffff;font-family:'Droid Sans', 'Helvetica Neue', Arial, sans-serif;font-size:16px;font-weight:bold;line-height:30px;margin:0;text-decoration:none;text-transform:none;" target='_blank'>
                                                     Cadastre-se
                                                 </a>
                                             </td>
