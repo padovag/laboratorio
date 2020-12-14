@@ -100,6 +100,24 @@ class GitLab {
         return $response;
     }
 
+    public function removeMembersFromGroup(array $members_ids, string $group_id, string $code): Response {
+        foreach($members_ids as $member_id) {
+            $response = $this->removeMemberFromGroup($member_id, $group_id, $code);
+        }
+
+        return $response;
+    }
+
+    public function removeMemberFromGroup(string $member_id, string $group_id, string $code): Response {
+        return $this->makeRequestWithCode(
+            self::GITLAB_API_URI,
+            $resource = "groups/{$group_id}/members/{$member_id}",
+            [],
+            'DELETE',
+            $code
+        );
+    }
+
     public function getGroupMembers(string $code, string $group_id) {
         $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,

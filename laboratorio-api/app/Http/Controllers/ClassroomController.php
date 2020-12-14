@@ -76,6 +76,29 @@ class ClassroomController extends ApiController {
         }
     }
 
+    public function remove(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'code' => 'required',
+            'members' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendFailedResponse("Validation error", $status = 400, $validator->errors()->messages());
+        }
+
+        try {
+            $members = Classroom::removeMembers(
+                $request['code'],
+                $request['id'],
+                explode(",", trim($request['members']))
+            );
+
+            return $this->sendSuccessResponse($members);
+        } catch(\Exception $exception) {
+            return $this->sendFailedResponse($exception->getMessage());
+        }
+    }
+
     public function list(Request $request) {
         $validator = Validator::make($request->all(), [
             'code' => 'required'

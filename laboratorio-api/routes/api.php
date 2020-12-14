@@ -23,6 +23,7 @@ Route::delete('/user/current', 'UserController@delete');
 Route::get('/classroom', 'ClassroomController@list');
 Route::post('/classroom', 'ClassroomController@create');
 Route::post('/classroom/members', 'ClassroomController@add');
+Route::delete('/classroom/{id}/members', 'ClassroomController@remove');
 Route::get('/classroom/{id}', 'ClassroomController@get');
 Route::delete('/classroom/{id}', 'ClassroomController@delete');
 

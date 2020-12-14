@@ -53,13 +53,23 @@ class Classroom {
         return $members_added;
     }
 
+    public static function removeMembers(string $code, string $external_id, array $members) {
+        $members_removed = self::removeMembersFromGroup($members, $external_id, $code);
+
+        if(!$members_removed) {
+            throw new ClassroomException("Could not find any members to add");
+        }
+
+        return $members_removed;
+    }
+
     public static function list(string $code): array {
         $groups = RemoteRepositoryResolver::resolve()->getGroups($code);
         $classrooms = array_filter(array_map(function($group) use ($code) {
             if (!self::shouldList($group)) {
                 return false;
             }
-            
+
             return new self(
                 $group->name,
                 self::getDescriptionFromDescription($group->description),
@@ -117,7 +127,24 @@ class Classroom {
             return null;
         }
 
-        RemoteRepositoryResolver::resolve()->addMembersToGroup($users, $group_id, $code);
+        $response = RemoteRepositoryResolver::resolve()->addMembersToGroup($users, $group_id, $code);
+        if ($response instanceof ErrorResponse) {
+            throw new ClassroomException("Could not add member to class");
+        }
+
+        return array_keys($users);
+    }
+
+    private static function removeMembersFromGroup(array $members, string $group_id, string $code): ?array {
+        $users = self::getUsers($members);
+        if(empty($users)) {
+            return null;
+        }
+
+        $response = RemoteRepositoryResolver::resolve()->removeMembersFromGroup($users, $group_id, $code);
+        if ($response instanceof ErrorResponse) {
+            throw new ClassroomException("Could not remove member from class");
+        }
 
         return array_keys($users);
     }
