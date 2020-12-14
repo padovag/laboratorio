@@ -165,6 +165,18 @@ class GitLab {
         return $response;
     }
 
+    public function starProject(string $code, string $project_id) {
+        $response = $this->makeRequestWithCode(
+            self::GITLAB_API_URI,
+            $resource = "projects/{$project_id}/star",
+            [],
+            'POST',
+            $code
+        );
+
+        return $response;
+    }
+
     public function getCommits(string $code, string $project_id) {
         $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
@@ -181,7 +193,7 @@ class GitLab {
         $response = $this->makeRequestWithCode(
             self::GITLAB_API_URI,
             $resource = "groups/{$group_id}/projects" ,
-            ['owned' => true],
+            ['owned' => true, 'starred' => true],
             'GET',
             $code
         );

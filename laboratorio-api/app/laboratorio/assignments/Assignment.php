@@ -141,6 +141,8 @@ class Assignment {
             throw new AssignmentException($response->data['error_message']);
         }
 
+        RemoteRepositoryResolver::resolve()->starProject($code, $response->data->id);
+
         return new self(
             $name                   = $response->data->name,
             $description            = $base_assignments_information->description,
